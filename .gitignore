@@ -1,0 +1,73 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+.pnpm-store/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+ENV/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Environment / secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+credentials.json
+secrets.yaml
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+dist/
+build/
+out/
+target/
+*.pyc
+*.tsbuildinfo
+
+# Data & runtime
+data/
+*.db
+*.sqlite
+*.sqlite3
+runs/
+reports/local/
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+
+# Test artifacts
+playwright-report/
+test-results/
+.playwright/
+
+# Models & caches
+models/
+*.gguf
+*.bin
+*.safetensors
+.cache/

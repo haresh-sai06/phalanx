@@ -1,0 +1,411 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" font-family="'Segoe UI', 'Inter', sans-serif">
+  <!-- Background -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0A1830"/>
+      <stop offset="1" stop-color="#050D22"/>
+    </linearGradient>
+    <linearGradient id="cardCyan" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#152A5A"/>
+      <stop offset="1" stop-color="#0F1F42"/>
+    </linearGradient>
+    <linearGradient id="cardPurple" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#22174A"/>
+      <stop offset="1" stop-color="#160E35"/>
+    </linearGradient>
+    <linearGradient id="cardGreen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0F3B2E"/>
+      <stop offset="1" stop-color="#082820"/>
+    </linearGradient>
+    <linearGradient id="cardAmber" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3A2A08"/>
+      <stop offset="1" stop-color="#221805"/>
+    </linearGradient>
+
+    <!-- Arrow markers -->
+    <marker id="arrow-cyan" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4FC3F7"/>
+    </marker>
+    <marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#B47CFF"/>
+    </marker>
+    <marker id="arrow-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#FDD835"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6EE7B7"/>
+    </marker>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bg)"/>
+
+  <!-- Title bar -->
+  <text x="800" y="46" text-anchor="middle" fill="#E5F3FF" font-size="30" font-weight="700" letter-spacing="1">PHALANX — SYSTEM ARCHITECTURE</text>
+  <text x="800" y="72" text-anchor="middle" fill="#7D9BC1" font-size="15">Multi-Persona Autonomous QA &amp; Security Testing Swarm · Zero-Config · BYOM · On-Prem Ready</text>
+
+  <!-- ================================================================== -->
+  <!-- LEFT COLUMN: EFFICIENCY LAYER -->
+  <!-- ================================================================== -->
+  <g id="efficiency-column">
+    <rect x="20" y="100" width="270" height="720" fill="url(#cardAmber)" stroke="#FDD835" stroke-width="1.2" rx="14" opacity="0.95"/>
+    <text x="155" y="128" text-anchor="middle" fill="#FDD835" font-size="14" font-weight="700" letter-spacing="1.5">EFFICIENCY LAYER</text>
+    <text x="155" y="146" text-anchor="middle" fill="#7D9BC1" font-size="10">applied across all stages</text>
+
+    <!-- Efficiency chips -->
+    <g transform="translate(35, 165)">
+      <rect width="240" height="70" rx="8" fill="#1a1508" stroke="#FDD835" stroke-width="0.8"/>
+      <text x="12" y="22" fill="#FDD835" font-size="12" font-weight="700">Anthropic Prompt Caching</text>
+      <text x="12" y="40" fill="#E5F3FF" font-size="10">Static system prompt + code cached</text>
+      <text x="12" y="58" fill="#6EE7B7" font-size="11" font-weight="700">↓ 90% cost per audit</text>
+    </g>
+
+    <g transform="translate(35, 250)">
+      <rect width="240" height="70" rx="8" fill="#1a1508" stroke="#FDD835" stroke-width="0.8"/>
+      <text x="12" y="22" fill="#FDD835" font-size="12" font-weight="700">A11y Tree over Screenshots</text>
+      <text x="12" y="40" fill="#E5F3FF" font-size="10">Structured DOM tree observation</text>
+      <text x="12" y="58" fill="#6EE7B7" font-size="11" font-weight="700">↓ 10× fewer observation tokens</text>
+    </g>
+
+    <g transform="translate(35, 335)">
+      <rect width="240" height="70" rx="8" fill="#1a1508" stroke="#FDD835" stroke-width="0.8"/>
+      <text x="12" y="22" fill="#FDD835" font-size="12" font-weight="700">Model Cascade Routing</text>
+      <text x="12" y="40" fill="#E5F3FF" font-size="10">Small model → escalate on bug candidate</text>
+      <text x="12" y="58" fill="#6EE7B7" font-size="11" font-weight="700">95% cheap · 5% frontier</text>
+    </g>
+
+    <g transform="translate(35, 420)">
+      <rect width="240" height="70" rx="8" fill="#1a1508" stroke="#FDD835" stroke-width="0.8"/>
+      <text x="12" y="22" fill="#FDD835" font-size="12" font-weight="700">LASER-D Compressed Reasoning</text>
+      <text x="12" y="40" fill="#E5F3FF" font-size="10">ICLR 2026 · replaces verbose CoT</text>
+      <text x="12" y="58" fill="#6EE7B7" font-size="11" font-weight="700">↓ 64% reasoning tokens</text>
+    </g>
+
+    <g transform="translate(35, 505)">
+      <rect width="240" height="70" rx="8" fill="#1a1508" stroke="#FDD835" stroke-width="0.8"/>
+      <text x="12" y="22" fill="#FDD835" font-size="12" font-weight="700">NVFP4 Quantization</text>
+      <text x="12" y="40" fill="#E5F3FF" font-size="10">4-bit FP on Blackwell / vLLM 0.8</text>
+      <text x="12" y="58" fill="#6EE7B7" font-size="11" font-weight="700">Runs on 24 GB GPU</text>
+    </g>
+
+    <g transform="translate(35, 590)">
+      <rect width="240" height="70" rx="8" fill="#1a1508" stroke="#FDD835" stroke-width="0.8"/>
+      <text x="12" y="22" fill="#FDD835" font-size="12" font-weight="700">Bug Fingerprint Dedup</text>
+      <text x="12" y="40" fill="#E5F3FF" font-size="10">hash(endpoint + class + stack)</text>
+      <text x="12" y="58" fill="#6EE7B7" font-size="11" font-weight="700">500 dupes → 1 report entry</text>
+    </g>
+
+    <g transform="translate(35, 675)">
+      <rect width="240" height="70" rx="8" fill="#1a1508" stroke="#FDD835" stroke-width="0.8"/>
+      <text x="12" y="22" fill="#FDD835" font-size="12" font-weight="700">Semantic Action Cache</text>
+      <text x="12" y="40" fill="#E5F3FF" font-size="10">Redis · embedding-keyed reuse</text>
+      <text x="12" y="58" fill="#6EE7B7" font-size="11" font-weight="700">2nd run on same app: near-free</text>
+    </g>
+  </g>
+
+  <!-- ================================================================== -->
+  <!-- CENTER PIPELINE -->
+  <!-- ================================================================== -->
+  <g id="pipeline">
+
+    <!-- Stage 1: Input -->
+    <g transform="translate(430, 105)">
+      <rect width="740" height="70" rx="10" fill="url(#cardCyan)" stroke="#4FC3F7" stroke-width="1.5"/>
+      <text x="20" y="27" fill="#4FC3F7" font-size="12" font-weight="700" letter-spacing="1.2">① INPUT</text>
+      <text x="20" y="50" fill="#E5F3FF" font-size="15" font-weight="600">$ phalanx audit &lt;repo-url&gt; &lt;app-url&gt;</text>
+      <text x="470" y="30" fill="#7D9BC1" font-size="11">GitHub repo</text>
+      <text x="470" y="46" fill="#7D9BC1" font-size="11">Running app URL</text>
+      <text x="470" y="62" fill="#7D9BC1" font-size="11">Optional: seed credentials</text>
+    </g>
+
+    <!-- Arrow 1 → 2 -->
+    <line x1="800" y1="180" x2="800" y2="210" stroke="#4FC3F7" stroke-width="2.2" marker-end="url(#arrow-cyan)"/>
+
+    <!-- Stage 2: Pre-flight Analyzer -->
+    <g transform="translate(430, 215)">
+      <rect width="740" height="90" rx="10" fill="url(#cardCyan)" stroke="#4FC3F7" stroke-width="1.5"/>
+      <text x="20" y="27" fill="#4FC3F7" font-size="12" font-weight="700" letter-spacing="1.2">② PRE-FLIGHT ANALYZER</text>
+      <text x="20" y="50" fill="#E5F3FF" font-size="14" font-weight="600">Code Understanding → Persona Spec</text>
+
+      <g transform="translate(20, 60)">
+        <rect width="150" height="22" rx="5" fill="#0A1830" stroke="#4FC3F7" stroke-width="0.6"/>
+        <text x="75" y="16" text-anchor="middle" fill="#B0CDF0" font-size="10">tree-sitter AST</text>
+      </g>
+      <g transform="translate(180, 60)">
+        <rect width="170" height="22" rx="5" fill="#0A1830" stroke="#4FC3F7" stroke-width="0.6"/>
+        <text x="85" y="16" text-anchor="middle" fill="#B0CDF0" font-size="10">MiniLM-L6 embeddings</text>
+      </g>
+      <g transform="translate(360, 60)">
+        <rect width="120" height="22" rx="5" fill="#0A1830" stroke="#4FC3F7" stroke-width="0.6"/>
+        <text x="60" y="16" text-anchor="middle" fill="#B0CDF0" font-size="10">FAISS retrieval</text>
+      </g>
+      <g transform="translate(490, 60)">
+        <rect width="230" height="22" rx="5" fill="#0A1830" stroke="#4FC3F7" stroke-width="0.6"/>
+        <text x="115" y="16" text-anchor="middle" fill="#B0CDF0" font-size="10">API + roles + auth map extraction</text>
+      </g>
+    </g>
+
+    <!-- Arrow 2 → 3 -->
+    <line x1="800" y1="310" x2="800" y2="345" stroke="#4FC3F7" stroke-width="2.2" marker-end="url(#arrow-cyan)"/>
+
+    <!-- Stage 3: Orchestrator -->
+    <g transform="translate(430, 350)">
+      <rect width="740" height="110" rx="10" fill="url(#cardPurple)" stroke="#B47CFF" stroke-width="1.8"/>
+      <text x="20" y="27" fill="#B47CFF" font-size="12" font-weight="700" letter-spacing="1.2">③ ORCHESTRATOR — LangGraph 1.0</text>
+      <text x="20" y="50" fill="#E5F3FF" font-size="14" font-weight="600">Persona Planner · Dynamic Agent Spawning · Stateful Graph</text>
+      <text x="20" y="72" fill="#B0CDF0" font-size="11">n_personas = len(user_roles) + concurrent_flag · specialization: +1 security-agent · +1 UX-agent (if complex)</text>
+
+      <g transform="translate(20, 82)">
+        <rect width="220" height="22" rx="5" fill="#170a2f" stroke="#B47CFF" stroke-width="0.6"/>
+        <text x="110" y="16" text-anchor="middle" fill="#E0B8FF" font-size="10">MCP tool bus (browser · code · report)</text>
+      </g>
+      <g transform="translate(250, 82)">
+        <rect width="230" height="22" rx="5" fill="#170a2f" stroke="#B47CFF" stroke-width="0.6"/>
+        <text x="115" y="16" text-anchor="middle" fill="#E0B8FF" font-size="10">Anthropic Memory Tool + Context Editing</text>
+      </g>
+      <g transform="translate(490, 82)">
+        <rect width="230" height="22" rx="5" fill="#170a2f" stroke="#B47CFF" stroke-width="0.6"/>
+        <text x="115" y="16" text-anchor="middle" fill="#E0B8FF" font-size="10">Cross-persona message bus (concurrency)</text>
+      </g>
+    </g>
+
+    <!-- Arrow 3 → 4 splitting -->
+    <line x1="800" y1="465" x2="800" y2="490" stroke="#B47CFF" stroke-width="2.2"/>
+    <line x1="580" y1="490" x2="1020" y2="490" stroke="#B47CFF" stroke-width="2.2"/>
+    <line x1="580" y1="490" x2="580" y2="512" stroke="#B47CFF" stroke-width="2.2" marker-end="url(#arrow-purple)"/>
+    <line x1="727" y1="490" x2="727" y2="512" stroke="#B47CFF" stroke-width="2.2" marker-end="url(#arrow-purple)"/>
+    <line x1="874" y1="490" x2="874" y2="512" stroke="#B47CFF" stroke-width="2.2" marker-end="url(#arrow-purple)"/>
+    <line x1="1021" y1="490" x2="1021" y2="512" stroke="#B47CFF" stroke-width="2.2" marker-end="url(#arrow-purple)"/>
+
+    <!-- Stage 4: Persona Swarm (4 parallel personas) -->
+    <text x="800" y="507" text-anchor="middle" fill="#B47CFF" font-size="11" font-weight="700" letter-spacing="1.2">④ PERSONA SWARM — parallel exploration</text>
+
+    <g transform="translate(510, 515)">
+      <rect width="140" height="130" rx="8" fill="url(#cardPurple)" stroke="#B47CFF" stroke-width="1.2"/>
+      <circle cx="70" cy="30" r="14" fill="#4FC3F7"/>
+      <text x="70" y="35" text-anchor="middle" fill="#0A1830" font-size="14" font-weight="700">R</text>
+      <text x="70" y="60" text-anchor="middle" fill="#E5F3FF" font-size="12" font-weight="700">Rider</text>
+      <text x="70" y="78" text-anchor="middle" fill="#B0CDF0" font-size="9">Playwright ctx #1</text>
+      <text x="70" y="94" text-anchor="middle" fill="#B0CDF0" font-size="9">observe → plan</text>
+      <text x="70" y="108" text-anchor="middle" fill="#B0CDF0" font-size="9">→ act → repeat</text>
+      <text x="70" y="122" text-anchor="middle" fill="#FDD835" font-size="9" font-weight="700">Haiku 4.5 / Qwen 7B</text>
+    </g>
+
+    <g transform="translate(657, 515)">
+      <rect width="140" height="130" rx="8" fill="url(#cardPurple)" stroke="#B47CFF" stroke-width="1.2"/>
+      <circle cx="70" cy="30" r="14" fill="#6EE7B7"/>
+      <text x="70" y="35" text-anchor="middle" fill="#0A1830" font-size="14" font-weight="700">D</text>
+      <text x="70" y="60" text-anchor="middle" fill="#E5F3FF" font-size="12" font-weight="700">Driver</text>
+      <text x="70" y="78" text-anchor="middle" fill="#B0CDF0" font-size="9">Playwright ctx #2</text>
+      <text x="70" y="94" text-anchor="middle" fill="#B0CDF0" font-size="9">observe → plan</text>
+      <text x="70" y="108" text-anchor="middle" fill="#B0CDF0" font-size="9">→ act → repeat</text>
+      <text x="70" y="122" text-anchor="middle" fill="#FDD835" font-size="9" font-weight="700">Haiku 4.5 / Qwen 7B</text>
+    </g>
+
+    <g transform="translate(804, 515)">
+      <rect width="140" height="130" rx="8" fill="url(#cardPurple)" stroke="#B47CFF" stroke-width="1.2"/>
+      <circle cx="70" cy="30" r="14" fill="#FDD835"/>
+      <text x="70" y="35" text-anchor="middle" fill="#0A1830" font-size="14" font-weight="700">A</text>
+      <text x="70" y="60" text-anchor="middle" fill="#E5F3FF" font-size="12" font-weight="700">Admin</text>
+      <text x="70" y="78" text-anchor="middle" fill="#B0CDF0" font-size="9">Playwright ctx #3</text>
+      <text x="70" y="94" text-anchor="middle" fill="#B0CDF0" font-size="9">observe → plan</text>
+      <text x="70" y="108" text-anchor="middle" fill="#B0CDF0" font-size="9">→ act → repeat</text>
+      <text x="70" y="122" text-anchor="middle" fill="#FDD835" font-size="9" font-weight="700">Haiku 4.5 / Qwen 7B</text>
+    </g>
+
+    <g transform="translate(951, 515)">
+      <rect width="140" height="130" rx="8" fill="url(#cardPurple)" stroke="#FF6B9E" stroke-width="1.5"/>
+      <circle cx="70" cy="30" r="14" fill="#FF6B9E"/>
+      <text x="70" y="35" text-anchor="middle" fill="#0A1830" font-size="14" font-weight="700">S</text>
+      <text x="70" y="60" text-anchor="middle" fill="#E5F3FF" font-size="12" font-weight="700">Security</text>
+      <text x="70" y="78" text-anchor="middle" fill="#B0CDF0" font-size="9">SQLi · XSS · IDOR</text>
+      <text x="70" y="94" text-anchor="middle" fill="#B0CDF0" font-size="9">auth bypass</text>
+      <text x="70" y="108" text-anchor="middle" fill="#B0CDF0" font-size="9">token replay</text>
+      <text x="70" y="122" text-anchor="middle" fill="#FDD835" font-size="9" font-weight="700">Sonnet 4.5 / Qwen 32B</text>
+    </g>
+
+    <!-- Cross-persona sync bar -->
+    <line x1="580" y1="655" x2="1021" y2="655" stroke="#6EE7B7" stroke-width="1" stroke-dasharray="4,3" opacity="0.7"/>
+    <text x="800" y="670" text-anchor="middle" fill="#6EE7B7" font-size="10" font-style="italic">↔ cross-persona state sync (concurrency fuzzing)</text>
+
+    <!-- Arrows to Detector -->
+    <line x1="580" y1="678" x2="800" y2="705" stroke="#B47CFF" stroke-width="1.5" marker-end="url(#arrow-purple)"/>
+    <line x1="727" y1="678" x2="800" y2="705" stroke="#B47CFF" stroke-width="1.5" marker-end="url(#arrow-purple)"/>
+    <line x1="874" y1="678" x2="800" y2="705" stroke="#B47CFF" stroke-width="1.5" marker-end="url(#arrow-purple)"/>
+    <line x1="1021" y1="678" x2="800" y2="705" stroke="#B47CFF" stroke-width="1.5" marker-end="url(#arrow-purple)"/>
+
+    <!-- Stage 5: Detection + Report -->
+    <g transform="translate(430, 710)">
+      <rect width="740" height="105" rx="10" fill="url(#cardGreen)" stroke="#6EE7B7" stroke-width="1.5"/>
+      <text x="20" y="27" fill="#6EE7B7" font-size="12" font-weight="700" letter-spacing="1.2">⑤ DETECT · DEDUP · REPORT</text>
+
+      <g transform="translate(20, 40)">
+        <rect width="220" height="55" rx="6" fill="#051813" stroke="#6EE7B7" stroke-width="0.6"/>
+        <text x="10" y="18" fill="#6EE7B7" font-size="11" font-weight="700">Bug Detector</text>
+        <text x="10" y="32" fill="#B0F0D8" font-size="9">console errors · HTTP anomalies</text>
+        <text x="10" y="45" fill="#B0F0D8" font-size="9">DOM crashes · unauth data · reflections</text>
+      </g>
+      <g transform="translate(255, 40)">
+        <rect width="220" height="55" rx="6" fill="#051813" stroke="#6EE7B7" stroke-width="0.6"/>
+        <text x="10" y="18" fill="#6EE7B7" font-size="11" font-weight="700">Fingerprint + Dedup</text>
+        <text x="10" y="32" fill="#B0F0D8" font-size="9">hash(endpoint + class + stack)</text>
+        <text x="10" y="45" fill="#B0F0D8" font-size="9">frontier LLM → severity + root cause</text>
+      </g>
+      <g transform="translate(490, 40)">
+        <rect width="230" height="55" rx="6" fill="#051813" stroke="#6EE7B7" stroke-width="0.6"/>
+        <text x="10" y="18" fill="#6EE7B7" font-size="11" font-weight="700">Report Generator</text>
+        <text x="10" y="32" fill="#B0F0D8" font-size="9">HTML / PDF · CVSS-ranked</text>
+        <text x="10" y="45" fill="#B0F0D8" font-size="9">screenshot · video · Playwright repro</text>
+      </g>
+    </g>
+
+    <!-- Output row -->
+    <g transform="translate(430, 830)">
+      <text x="0" y="18" fill="#7D9BC1" font-size="12" font-weight="600">OUTPUT →</text>
+      <g transform="translate(80, 0)">
+        <rect width="150" height="26" rx="6" fill="#0F1F42" stroke="#4FC3F7" stroke-width="0.8"/>
+        <text x="75" y="18" text-anchor="middle" fill="#E5F3FF" font-size="11">Audit Report (HTML/PDF)</text>
+      </g>
+      <g transform="translate(240, 0)">
+        <rect width="180" height="26" rx="6" fill="#0F1F42" stroke="#4FC3F7" stroke-width="0.8"/>
+        <text x="90" y="18" text-anchor="middle" fill="#E5F3FF" font-size="11">Playwright Repro Scripts</text>
+      </g>
+      <g transform="translate(430, 0)">
+        <rect width="150" height="26" rx="6" fill="#0F1F42" stroke="#4FC3F7" stroke-width="0.8"/>
+        <text x="75" y="18" text-anchor="middle" fill="#E5F3FF" font-size="11">Video Evidence</text>
+      </g>
+      <g transform="translate(590, 0)">
+        <rect width="150" height="26" rx="6" fill="#0F1F42" stroke="#4FC3F7" stroke-width="0.8"/>
+        <text x="75" y="18" text-anchor="middle" fill="#E5F3FF" font-size="11">CI/CD Webhook</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- ================================================================== -->
+  <!-- RIGHT COLUMN: BYOM MODEL BUS -->
+  <!-- ================================================================== -->
+  <g id="model-bus">
+    <rect x="1195" y="100" width="385" height="720" fill="url(#cardCyan)" stroke="#4FC3F7" stroke-width="1.2" opacity="0.95" rx="14"/>
+    <text x="1388" y="128" text-anchor="middle" fill="#4FC3F7" font-size="14" font-weight="700" letter-spacing="1.5">BYOM MODEL BUS</text>
+    <text x="1388" y="146" text-anchor="middle" fill="#7D9BC1" font-size="10">Bring Your Own Model · Cloud + Local · Cost-Tiered</text>
+
+    <!-- Cloud Frontier tier -->
+    <g transform="translate(1215, 165)">
+      <rect width="345" height="130" rx="8" fill="#0A1830" stroke="#B47CFF" stroke-width="1"/>
+      <text x="15" y="22" fill="#B47CFF" font-size="11" font-weight="700" letter-spacing="1">CLOUD · FRONTIER TIER</text>
+      <text x="15" y="38" fill="#7D9BC1" font-size="9">Used only for: bug root-cause reasoning, orchestration</text>
+
+      <g transform="translate(15, 48)">
+        <rect width="150" height="22" rx="4" fill="#170a2f" stroke="#B47CFF" stroke-width="0.5"/>
+        <text x="75" y="16" text-anchor="middle" fill="#E5F3FF" font-size="10">Claude Sonnet 4.5</text>
+      </g>
+      <g transform="translate(175, 48)">
+        <rect width="150" height="22" rx="4" fill="#170a2f" stroke="#B47CFF" stroke-width="0.5"/>
+        <text x="75" y="16" text-anchor="middle" fill="#E5F3FF" font-size="10">Gemini 3 Pro</text>
+      </g>
+      <g transform="translate(15, 76)">
+        <rect width="150" height="22" rx="4" fill="#170a2f" stroke="#B47CFF" stroke-width="0.5"/>
+        <text x="75" y="16" text-anchor="middle" fill="#E5F3FF" font-size="10">GPT-5</text>
+      </g>
+      <g transform="translate(175, 76)">
+        <rect width="150" height="22" rx="4" fill="#170a2f" stroke="#B47CFF" stroke-width="0.5"/>
+        <text x="75" y="16" text-anchor="middle" fill="#E5F3FF" font-size="10">Qwen 3 32B (local)</text>
+      </g>
+      <text x="15" y="118" fill="#FDD835" font-size="10" font-weight="700">≈ $3–15 per 1M tokens · fires ~5% of steps</text>
+    </g>
+
+    <!-- Cloud Mid tier -->
+    <g transform="translate(1215, 310)">
+      <rect width="345" height="130" rx="8" fill="#0A1830" stroke="#4FC3F7" stroke-width="1"/>
+      <text x="15" y="22" fill="#4FC3F7" font-size="11" font-weight="700" letter-spacing="1">MID TIER · PERSONA ACTORS</text>
+      <text x="15" y="38" fill="#7D9BC1" font-size="9">Used for: click, type, plan-next-step</text>
+
+      <g transform="translate(15, 48)">
+        <rect width="150" height="22" rx="4" fill="#0F1F42" stroke="#4FC3F7" stroke-width="0.5"/>
+        <text x="75" y="16" text-anchor="middle" fill="#E5F3FF" font-size="10">Claude Haiku 4.5</text>
+      </g>
+      <g transform="translate(175, 48)">
+        <rect width="150" height="22" rx="4" fill="#0F1F42" stroke="#4FC3F7" stroke-width="0.5"/>
+        <text x="75" y="16" text-anchor="middle" fill="#E5F3FF" font-size="10">Gemini 2.5 Flash</text>
+      </g>
+      <g transform="translate(15, 76)">
+        <rect width="150" height="22" rx="4" fill="#0F1F42" stroke="#4FC3F7" stroke-width="0.5"/>
+        <text x="75" y="16" text-anchor="middle" fill="#E5F3FF" font-size="10">GPT-5 mini</text>
+      </g>
+      <g transform="translate(175, 76)">
+        <rect width="150" height="22" rx="4" fill="#0F1F42" stroke="#4FC3F7" stroke-width="0.5"/>
+        <text x="75" y="16" text-anchor="middle" fill="#E5F3FF" font-size="10">Groq Llama 3.3 70B</text>
+      </g>
+      <text x="15" y="118" fill="#FDD835" font-size="10" font-weight="700">≈ $0.3–1 per 1M tokens · free-tier available</text>
+    </g>
+
+    <!-- Local tier -->
+    <g transform="translate(1215, 455)">
+      <rect width="345" height="130" rx="8" fill="#0A1830" stroke="#6EE7B7" stroke-width="1"/>
+      <text x="15" y="22" fill="#6EE7B7" font-size="11" font-weight="700" letter-spacing="1">LOCAL / ON-PREM · AIR-GAPPED</text>
+      <text x="15" y="38" fill="#7D9BC1" font-size="9">Used when: source code cannot leave the perimeter</text>
+
+      <g transform="translate(15, 48)">
+        <rect width="150" height="22" rx="4" fill="#082820" stroke="#6EE7B7" stroke-width="0.5"/>
+        <text x="75" y="16" text-anchor="middle" fill="#E5F3FF" font-size="10">Qwen 3 7B (Q4)</text>
+      </g>
+      <g transform="translate(175, 48)">
+        <rect width="150" height="22" rx="4" fill="#082820" stroke="#6EE7B7" stroke-width="0.5"/>
+        <text x="75" y="16" text-anchor="middle" fill="#E5F3FF" font-size="10">Qwen 3 32B (NVFP4)</text>
+      </g>
+      <g transform="translate(15, 76)">
+        <rect width="150" height="22" rx="4" fill="#082820" stroke="#6EE7B7" stroke-width="0.5"/>
+        <text x="75" y="16" text-anchor="middle" fill="#E5F3FF" font-size="10">Ollama · vLLM 0.8</text>
+      </g>
+      <g transform="translate(175, 76)">
+        <rect width="150" height="22" rx="4" fill="#082820" stroke="#6EE7B7" stroke-width="0.5"/>
+        <text x="75" y="16" text-anchor="middle" fill="#E5F3FF" font-size="10">SGLang · TensorRT</text>
+      </g>
+      <text x="15" y="118" fill="#FDD835" font-size="10" font-weight="700">₹0 recurring · fits on single 24 GB GPU</text>
+    </g>
+
+    <!-- Router -->
+    <g transform="translate(1215, 600)">
+      <rect width="345" height="100" rx="8" fill="#170a2f" stroke="#B47CFF" stroke-width="1"/>
+      <text x="15" y="22" fill="#B47CFF" font-size="11" font-weight="700" letter-spacing="1">UNIROUTE ROUTER</text>
+      <text x="15" y="38" fill="#7D9BC1" font-size="9">Feature-vector routing · cold-start ready for unseen models</text>
+      <text x="15" y="58" fill="#E5F3FF" font-size="10">• Confidence-based cascade escalation</text>
+      <text x="15" y="74" fill="#E5F3FF" font-size="10">• Latency + cost budget per call</text>
+      <text x="15" y="90" fill="#E5F3FF" font-size="10">• Auto-fallback on API failure</text>
+    </g>
+
+    <!-- Cost summary -->
+    <g transform="translate(1215, 715)">
+      <rect width="345" height="90" rx="8" fill="#3A2A08" stroke="#FDD835" stroke-width="1"/>
+      <text x="15" y="22" fill="#FDD835" font-size="11" font-weight="700" letter-spacing="1">COST PER AUDIT (BuggyBox)</text>
+      <text x="15" y="42" fill="#E5F3FF" font-size="11">Cloud cascade + caching: <tspan fill="#6EE7B7" font-weight="700">≈ $0.08 (₹7)</tspan></text>
+      <text x="15" y="60" fill="#E5F3FF" font-size="11">Gemini free tier: <tspan fill="#6EE7B7" font-weight="700">₹0</tspan></text>
+      <text x="15" y="78" fill="#E5F3FF" font-size="11">Full local: <tspan fill="#6EE7B7" font-weight="700">₹0 (electricity only)</tspan></text>
+    </g>
+  </g>
+
+  <!-- Router arrows from personas to Model Bus -->
+  <path d="M 1091 580 Q 1150 580 1195 500" fill="none" stroke="#B47CFF" stroke-width="1.2" opacity="0.6" stroke-dasharray="3,3"/>
+  <path d="M 1091 580 Q 1150 580 1195 380" fill="none" stroke="#4FC3F7" stroke-width="1.2" opacity="0.6" stroke-dasharray="3,3"/>
+  <path d="M 1091 580 Q 1150 580 1195 240" fill="none" stroke="#6EE7B7" stroke-width="1.2" opacity="0.6" stroke-dasharray="3,3"/>
+  <text x="1120" y="510" fill="#B47CFF" font-size="9" opacity="0.85">router</text>
+
+  <!-- Efficiency layer arrows into pipeline (subtle) -->
+  <path d="M 290 200 Q 360 200 430 240" fill="none" stroke="#FDD835" stroke-width="1" opacity="0.4" stroke-dasharray="2,3"/>
+  <path d="M 290 285 Q 360 285 430 500" fill="none" stroke="#FDD835" stroke-width="1" opacity="0.4" stroke-dasharray="2,3"/>
+  <path d="M 290 370 Q 360 370 430 400" fill="none" stroke="#FDD835" stroke-width="1" opacity="0.4" stroke-dasharray="2,3"/>
+  <path d="M 290 625 Q 360 625 430 750" fill="none" stroke="#FDD835" stroke-width="1" opacity="0.4" stroke-dasharray="2,3"/>
+
+  <!-- Footer legend -->
+  <g transform="translate(20, 875)">
+    <circle cx="8" cy="0" r="5" fill="#4FC3F7"/>
+    <text x="20" y="4" fill="#7D9BC1" font-size="10">Data flow</text>
+    <circle cx="88" cy="0" r="5" fill="#B47CFF"/>
+    <text x="100" y="4" fill="#7D9BC1" font-size="10">Agent orchestration</text>
+    <circle cx="228" cy="0" r="5" fill="#6EE7B7"/>
+    <text x="240" y="4" fill="#7D9BC1" font-size="10">Detection · output</text>
+    <circle cx="358" cy="0" r="5" fill="#FDD835"/>
+    <text x="370" y="4" fill="#7D9BC1" font-size="10">Efficiency layer</text>
+    <circle cx="488" cy="0" r="5" fill="#FF6B9E"/>
+    <text x="500" y="4" fill="#7D9BC1" font-size="10">Security-specialized</text>
+  </g>
+</svg>
