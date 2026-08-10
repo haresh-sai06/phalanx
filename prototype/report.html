@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phalanx — Audit Report</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .report-header {
+    padding: 32px 32px 24px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, var(--card-deep) 0%, var(--bg) 100%);
+  }
+  .report-header .tag {
+    display: inline-block;
+    background: var(--purple);
+    color: var(--bg);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 4px;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .report-header h1 { font-size: 30px; }
+  .report-meta {
+    color: var(--text-muted);
+    font-size: 13px;
+    margin-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .report-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 20px;
+  }
+
+  /* Stats row */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    padding: 24px 32px;
+  }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    text-align: center;
+  }
+  .stat-card.critical { border-color: var(--red); }
+  .stat-card.high { border-color: var(--amber); }
+  .stat-card.medium { border-color: var(--purple); }
+  .stat-card.low { border-color: var(--green); }
+  .stat-num {
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -1px;
+  }
+  .stat-card.critical .stat-num { color: var(--red); }
+  .stat-card.high .stat-num { color: var(--amber); }
+  .stat-card.medium .stat-num { color: var(--purple); }
+  .stat-card.low .stat-num { color: var(--green); }
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-top: 4px;
+    font-weight: 500;
+  }
+
+  /* Filter row */
+  .filter-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 32px;
+    background: var(--card-deep);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .filter-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .filter-chip {
+    padding: 6px 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 12px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .filter-chip.active {
+    background: var(--cyan);
+    color: var(--bg);
+    border-color: var(--cyan);
+    font-weight: 600;
+  }
+  .filter-chip:hover:not(.active) { border-color: var(--border-hover); color: var(--text); }
+  .search-input {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: inherit;
+    min-width: 200px;
+  }
+
+  /* Bug list */
+  .bug-list-full { padding: 24px 32px; }
+  .bug-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left-width: 4px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: all 0.2s;
+  }
+  .bug-card.critical { border-left-color: var(--red); }
+  .bug-card.high { border-left-color: var(--amber); }
+  .bug-card.medium { border-left-color: var(--purple); }
+  .bug-card:hover { border-color: var(--border-hover); }
+
+  .bug-summary {
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    gap: 16px;
+  }
+  .bug-summary-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+  }
+  .bug-summary-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .bug-summary-endpoint {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--cyan);
+    margin-top: 4px;
+  }
+  .expand-chevron {
+    color: var(--text-dim);
+    font-size: 20px;
+    transition: transform 0.2s;
+  }
+  .bug-card.expanded .expand-chevron { transform: rotate(90deg); }
+
+  .bug-detail {
+    display: none;
+    padding: 0 22px 22px;
+    border-top: 1px solid var(--border);
+  }
+  .bug-card.expanded .bug-detail { display: block; }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 24px;
+    margin-top: 18px;
+  }
+  .detail-main p {
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+  .repro-block {
+    background: var(--bg-deep);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--green);
+    margin-top: 12px;
+    position: relative;
+    overflow-x: auto;
+    line-height: 1.7;
+  }
+  .repro-block pre { white-space: pre-wrap; word-break: break-word; margin: 0; }
+  .repro-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .repro-title {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+  }
+  .btn-copy {
+    padding: 4px 10px;
+    background: var(--card);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-copy:hover { color: var(--cyan); border-color: var(--cyan); }
+
+  .detail-side {
+    background: var(--card-deep);
+    border-radius: 8px;
+    padding: 16px 18px;
+  }
+  .side-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .side-row:last-child { border-bottom: none; }
+  .side-label { color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+  .side-value { color: var(--text); font-family: 'JetBrains Mono', monospace; }
+
+  .screenshot-thumb {
+    width: 100%;
+    height: 180px;
+    background: linear-gradient(135deg, var(--card-purple) 0%, var(--card) 100%);
+    border-radius: 8px;
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-dim);
+    font-size: 12px;
+    overflow: hidden;
+    position: relative;
+  }
+  .screenshot-thumb img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand-mark">
+    <div class="logo">Φ</div>
+    <span>PHALANX</span>
+  </div>
+  <div class="topbar-meta">
+    <a href="dashboard.html" class="btn">← Back to audit</a>
+    <a href="setup.html" class="btn">+ New audit</a>
+  </div>
+</div>
+
+<div class="report-header">
+  <span class="tag">AUDIT REPORT</span>
+  <h1>github.com/haresh-sai06/buggystore</h1>
+  <div class="report-meta">
+    completed 2026-08-10 14:22:16 · duration 24m 12s · 4 personas · 178 total steps · <span style="color: var(--green);">cost ₹0 (on-prem)</span>
+  </div>
+  <div class="report-actions">
+    <button class="btn btn-primary">↓ Export PDF</button>
+    <button class="btn">Export JSON</button>
+    <button class="btn">Share link</button>
+    <button class="btn">Open in GitHub Issue</button>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat-card"><div class="stat-num">12</div><div class="stat-label">Total bugs</div></div>
+  <div class="stat-card critical"><div class="stat-num">3</div><div class="stat-label">Critical</div></div>
+  <div class="stat-card high"><div class="stat-num">5</div><div class="stat-label">High</div></div>
+  <div class="stat-card medium"><div class="stat-num">3</div><div class="stat-label">Medium</div></div>
+  <div class="stat-card low"><div class="stat-num">1</div><div class="stat-label">Low</div></div>
+</div>
+
+<div class="filter-row">
+  <div class="filter-group">
+    <span class="dim" style="margin-right: 4px;">Severity:</span>
+    <span class="filter-chip active">All</span>
+    <span class="filter-chip">Critical</span>
+    <span class="filter-chip">High</span>
+    <span class="filter-chip">Medium</span>
+  </div>
+  <div class="filter-group">
+    <span class="dim" style="margin-right: 4px;">Category:</span>
+    <span class="filter-chip active">All</span>
+    <span class="filter-chip">Security</span>
+    <span class="filter-chip">Functional</span>
+    <span class="filter-chip">UX</span>
+  </div>
+  <input type="text" class="search-input" placeholder="🔎 Search bugs...">
+</div>
+
+<div class="bug-list-full">
+
+  <!-- Bug 1: expanded by default -->
+  <div class="bug-card critical expanded">
+    <div class="bug-summary" onclick="this.parentElement.classList.toggle('expanded')">
+      <div class="bug-summary-left">
+        <span class="badge badge-critical">critical</span>
+        <span class="badge badge-cat">security</span>
+        <div>
+          <div class="bug-summary-title">SQL-injection-style authentication bypass</div>
+          <div class="bug-summary-endpoint">POST /login</div>
+        </div>
+      </div>
+      <span class="expand-chevron">▸</span>
+    </div>
+    <div class="bug-detail">
+      <div class="detail-grid">
+        <div class="detail-main">
+          <p>The <code>/login</code> endpoint uses string-interpolated matching against the user list. Submitting <code>admin@buggystore.local' OR '1'='1</code> as the email bypasses password validation and grants an admin session.</p>
+          <p><strong>Impact:</strong> full account takeover of every user, including administrators. Attacker gains admin privileges without knowing any password.</p>
+
+          <div class="repro-header">
+            <div class="repro-title">Playwright reproduction</div>
+            <button class="btn-copy">Copy</button>
+          </div>
+          <div class="repro-block"><pre>test('SQLi auth bypass on /login', async ({ page }) => {
+  await page.goto('http://localhost:3000/login');
+  await page.fill('#email', "admin@buggystore.local' OR '1'='1");
+  await page.fill('#password', 'anything');
+  await page.click('#btn-login');
+  await expect(page).toHaveURL(/\/admin/);
+  await expect(page.locator('h1')).toContainText('Admin Panel');
+});</pre></div>
+        </div>
+        <div class="detail-side">
+          <div class="side-row"><span class="side-label">CVSS</span><span class="side-value" style="color: var(--red);">9.8 (CRITICAL)</span></div>
+          <div class="side-row"><span class="side-label">CWE</span><span class="side-value">CWE-89</span></div>
+          <div class="side-row"><span class="side-label">Persona</span><span class="side-value" style="color: var(--pink);">● security</span></div>
+          <div class="side-row"><span class="side-label">Step</span><span class="side-value">5 / 178</span></div>
+          <div class="side-row"><span class="side-label">Time</span><span class="side-value">00:00:47</span></div>
+          <div class="side-row"><span class="side-label">FP</span><span class="side-value">a3f9c1b8e02d</span></div>
+          <div class="screenshot-thumb">
+            <img src="screenshots/security.png" alt="Login form with injection payload">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bug 2 -->
+  <div class="bug-card critical">
+    <div class="bug-summary" onclick="this.parentElement.classList.toggle('expanded')">
+      <div class="bug-summary-left">
+        <span class="badge badge-critical">critical</span>
+        <span class="badge badge-cat">security</span>
+        <div>
+          <div class="bug-summary-title">Admin panel accessible without authentication</div>
+          <div class="bug-summary-endpoint">GET /admin</div>
+        </div>
+      </div>
+      <span class="expand-chevron">▸</span>
+    </div>
+    <div class="bug-detail">
+      <div class="detail-grid">
+        <div class="detail-main">
+          <p>The <code>/admin</code> route handler contains no session check. Any anonymous visitor can view the full user table (including plaintext passwords), all product margins, and every submitted review.</p>
+          <div class="repro-header">
+            <div class="repro-title">Playwright reproduction</div>
+            <button class="btn-copy">Copy</button>
+          </div>
+          <div class="repro-block"><pre>test('unauthenticated /admin access', async ({ page }) => {
+  await page.goto('http://localhost:3000/admin');
+  await expect(page.locator('h1')).toContainText('Admin Panel');
+  await expect(page.locator('table')).toContainText('admin@buggystore.local');
+});</pre></div>
+        </div>
+        <div class="detail-side">
+          <div class="side-row"><span class="side-label">CVSS</span><span class="side-value" style="color: var(--red);">9.1 (CRITICAL)</span></div>
+          <div class="side-row"><span class="side-label">CWE</span><span class="side-value">CWE-306</span></div>
+          <div class="side-row"><span class="side-label">Persona</span><span class="side-value" style="color: var(--amber);">● admin</span></div>
+          <div class="side-row"><span class="side-label">Step</span><span class="side-value">18 / 178</span></div>
+          <div class="side-row"><span class="side-label">FP</span><span class="side-value">7c4b9e2d1a05</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bug 3 -->
+  <div class="bug-card critical">
+    <div class="bug-summary" onclick="this.parentElement.classList.toggle('expanded')">
+      <div class="bug-summary-left">
+        <span class="badge badge-critical">critical</span>
+        <span class="badge badge-cat">security</span>
+        <div>
+          <div class="bug-summary-title">Cross-persona IDOR — rider viewing driver's cart mid-session</div>
+          <div class="bug-summary-endpoint">GET /cart</div>
+        </div>
+      </div>
+      <span class="expand-chevron">▸</span>
+    </div>
+  </div>
+
+  <!-- Bug 4 -->
+  <div class="bug-card high">
+    <div class="bug-summary" onclick="this.parentElement.classList.toggle('expanded')">
+      <div class="bug-summary-left">
+        <span class="badge badge-high">high</span>
+        <span class="badge badge-cat">security</span>
+        <div>
+          <div class="bug-summary-title">Sensitive internal field 'hidden_cost' exposed via ?debug=1</div>
+          <div class="bug-summary-endpoint">GET /product/{id}?debug=1</div>
+        </div>
+      </div>
+      <span class="expand-chevron">▸</span>
+    </div>
+  </div>
+
+  <!-- Bug 5 -->
+  <div class="bug-card high">
+    <div class="bug-summary" onclick="this.parentElement.classList.toggle('expanded')">
+      <div class="bug-summary-left">
+        <span class="badge badge-high">high</span>
+        <span class="badge badge-cat">security</span>
+        <div>
+          <div class="bug-summary-title">Reflected XSS in product review field</div>
+          <div class="bug-summary-endpoint">POST /product/{id}/review</div>
+        </div>
+      </div>
+      <span class="expand-chevron">▸</span>
+    </div>
+  </div>
+
+  <!-- Bug 6 -->
+  <div class="bug-card high">
+    <div class="bug-summary" onclick="this.parentElement.classList.toggle('expanded')">
+      <div class="bug-summary-left">
+        <span class="badge badge-high">high</span>
+        <span class="badge badge-cat">functional</span>
+        <div>
+          <div class="bug-summary-title">Server error 500 on malformed product ID</div>
+          <div class="bug-summary-endpoint">GET /product/abc</div>
+        </div>
+      </div>
+      <span class="expand-chevron">▸</span>
+    </div>
+  </div>
+
+  <!-- Bug 7 -->
+  <div class="bug-card medium">
+    <div class="bug-summary" onclick="this.parentElement.classList.toggle('expanded')">
+      <div class="bug-summary-left">
+        <span class="badge badge-medium">medium</span>
+        <span class="badge badge-cat">functional</span>
+        <div>
+          <div class="bug-summary-title">No rate limit / idempotency on repeated cart additions</div>
+          <div class="bug-summary-endpoint">POST /cart/add</div>
+        </div>
+      </div>
+      <span class="expand-chevron">▸</span>
+    </div>
+  </div>
+
+  <!-- Bug 8 -->
+  <div class="bug-card medium">
+    <div class="bug-summary" onclick="this.parentElement.classList.toggle('expanded')">
+      <div class="bug-summary-left">
+        <span class="badge badge-medium">medium</span>
+        <span class="badge badge-cat">ux</span>
+        <div>
+          <div class="bug-summary-title">Product modal overflows viewport on mobile widths</div>
+          <div class="bug-summary-endpoint">GET /product/{id}</div>
+        </div>
+      </div>
+      <span class="expand-chevron">▸</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Filter chip toggling
+  document.querySelectorAll('.filter-group').forEach(group => {
+    group.querySelectorAll('.filter-chip').forEach(chip => {
+      chip.onclick = () => {
+        group.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+      };
+    });
+  });
+</script>
+</body>
+</html>
