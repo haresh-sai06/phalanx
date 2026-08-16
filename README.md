@@ -199,9 +199,12 @@ Compare: XBOW pentest ≈ $6,000/audit. Testim.io ≈ $50/run.
 
 - Haresh Sainaath S
 - Shyam Prasath S
-- _(2 additional members TBD)_
+- Navika G
+- Maithra Rajaram
 
 **Institution:** Sri Krishna College of Technology, Coimbatore
+
+Prototype under /prototype - Kindly check
 
 ---
 
