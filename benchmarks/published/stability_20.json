@@ -1,0 +1,228 @@
+{
+  "consecutive_runs": 20,
+  "passed": 20,
+  "failed": 0,
+  "all_20_passed_12_of_12": true,
+  "runs": [
+    {
+      "run": 1,
+      "ok": true,
+      "bugs": "12/12",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "elapsed_s": 6.96,
+      "fn": [],
+      "fp": []
+    },
+    {
+      "run": 2,
+      "ok": true,
+      "bugs": "12/12",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "elapsed_s": 6.93,
+      "fn": [],
+      "fp": []
+    },
+    {
+      "run": 3,
+      "ok": true,
+      "bugs": "12/12",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "elapsed_s": 6.87,
+      "fn": [],
+      "fp": []
+    },
+    {
+      "run": 4,
+      "ok": true,
+      "bugs": "12/12",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "elapsed_s": 7.07,
+      "fn": [],
+      "fp": []
+    },
+    {
+      "run": 5,
+      "ok": true,
+      "bugs": "12/12",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "elapsed_s": 7.11,
+      "fn": [],
+      "fp": []
+    },
+    {
+      "run": 6,
+      "ok": true,
+      "bugs": "12/12",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "elapsed_s": 7.0,
+      "fn": [],
+      "fp": []
+    },
+    {
+      "run": 7,
+      "ok": true,
+      "bugs": "12/12",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "elapsed_s": 7.38,
+      "fn": [],
+      "fp": []
+    },
+    {
+      "run": 8,
+      "ok": true,
+      "bugs": "12/12",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "elapsed_s": 7.02,
+      "fn": [],
+      "fp": []
+    },
+    {
+      "run": 9,
+      "ok": true,
+      "bugs": "12/12",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "elapsed_s": 7.11,
+      "fn": [],
+      "fp": []
+    },
+    {
+      "run": 10,
+      "ok": true,
+      "bugs": "12/12",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "elapsed_s": 7.1,
+      "fn": [],
+      "fp": []
+    },
+    {
+      "run": 11,
+      "ok": true,
+      "bugs": "12/12",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "elapsed_s": 7.08,
+      "fn": [],
+      "fp": []
+    },
+    {
+      "run": 12,
+      "ok": true,
+      "bugs": "12/12",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "elapsed_s": 7.01,
+      "fn": [],
+      "fp": []
+    },
+    {
+      "run": 13,
+      "ok": true,
+      "bugs": "12/12",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "elapsed_s": 6.94,
+      "fn": [],
+      "fp": []
+    },
+    {
+      "run": 14,
+      "ok": true,
+      "bugs": "12/12",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "elapsed_s": 6.9,
+      "fn": [],
+      "fp": []
+    },
+    {
+      "run": 15,
+      "ok": true,
+      "bugs": "12/12",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "elapsed_s": 6.81,
+      "fn": [],
+      "fp": []
+    },
+    {
+      "run": 16,
+      "ok": true,
+      "bugs": "12/12",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "elapsed_s": 6.88,
+      "fn": [],
+      "fp": []
+    },
+    {
+      "run": 17,
+      "ok": true,
+      "bugs": "12/12",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "elapsed_s": 6.74,
+      "fn": [],
+      "fp": []
+    },
+    {
+      "run": 18,
+      "ok": true,
+      "bugs": "12/12",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "elapsed_s": 6.81,
+      "fn": [],
+      "fp": []
+    },
+    {
+      "run": 19,
+      "ok": true,
+      "bugs": "12/12",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "elapsed_s": 22.23,
+      "fn": [],
+      "fp": []
+    },
+    {
+      "run": 20,
+      "ok": true,
+      "bugs": "12/12",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "elapsed_s": 6.96,
+      "fn": [],
+      "fp": []
+    }
+  ]
+}

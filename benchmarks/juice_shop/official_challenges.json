@@ -1,0 +1,18 @@
+{
+  "target": "OWASP Juice Shop v17.3.0",
+  "source": "Official challenge definitions shipped with Juice Shop (data/static/challenges.yml), also served live at GET /api/Challenges on the running instance. Challenge catalogue: https://pwning.owasp-juice.shop/ and https://github.com/juice-shop/juice-shop/blob/master/data/static/challenges.yml",
+  "scope_rationale": "Subset of the 109 official challenges that a black-box, UNAUTHENTICATED crawler can in principle reach in a single step, without solving CAPTCHAs, coupon math, or authenticated multi-step puzzles. Each entry keeps Juice Shop's own key/name/category. A challenge is counted found only if Phalanx emits a finding of the mapped class; the mapping is listed so scoring is auditable. Note: 'Exposed Metrics' (exposedMetricsChallenge) IS an official challenge in v17.3.0 despite an earlier review note to the contrary — verify via /api/Challenges.",
+  "scoring": "A scoped challenge counts as a true positive when Phalanx emits any finding whose fingerprint is in map_fingerprints. Findings with no mapped challenge are false positives. Scoped challenges with no mapped finding are false negatives.",
+  "challenges": [
+    {"key": "errorHandlingChallenge", "name": "Error Handling", "category": "Security Misconfiguration", "difficulty": 1, "map_fingerprints": ["sqli:error-page", "error:stacktrace"], "reach": "Send malformed input to any endpoint; app returns an unhandled error page."},
+    {"key": "loginAdminChallenge", "name": "Login Admin", "category": "Injection", "difficulty": 2, "map_fingerprints": ["sqli:login"], "reach": "SQL-injection auth bypass on the login endpoint."},
+    {"key": "directoryListingChallenge", "name": "Confidential Document", "category": "Sensitive Data Exposure", "difficulty": 1, "map_fingerprints": ["misconfig:directory-listing"], "reach": "Browse an exposed static directory listing and read a confidential file."},
+    {"key": "forgottenBackupChallenge", "name": "Forgotten Sales Backup", "category": "Sensitive Data Exposure", "difficulty": 4, "map_fingerprints": ["misconfig:backup-file"], "reach": "Download a backup/archive artifact left in a reachable directory."},
+    {"key": "exposedMetricsChallenge", "name": "Exposed Metrics", "category": "Sensitive Data Exposure", "difficulty": 1, "map_fingerprints": ["misconfig:metrics"], "reach": "GET the unauthenticated Prometheus /metrics endpoint."},
+    {"key": "adminSectionChallenge", "name": "Admin Section", "category": "Broken Access Control", "difficulty": 2, "map_fingerprints": ["authz:admin-open", "authz:admin-section", "authz:admin-config"], "reach": "Reach an administration surface without being an admin."},
+    {"key": "scoreBoardChallenge", "name": "Score Board", "category": "Miscellaneous", "difficulty": 1, "map_fingerprints": ["disclosure:score-board"], "reach": "Find the hidden score-board page."},
+    {"key": "localXssChallenge", "name": "DOM XSS", "category": "XSS", "difficulty": 1, "map_fingerprints": ["xss:dom-search", "xss:reflected"], "reach": "Inject a script via the search parameter that executes in the DOM."},
+    {"key": "restfulXssChallenge", "name": "API-only XSS", "category": "XSS", "difficulty": 3, "map_fingerprints": ["xss:api", "xss:reflected"], "reach": "Persist an XSS payload through a REST endpoint."},
+    {"key": "dbSchemaChallenge", "name": "Database Schema", "category": "Injection", "difficulty": 3, "map_fingerprints": ["sqli:union", "sqli:error-page"], "reach": "Use UNION-based SQLi on product search to read the DB schema."}
+  ]
+}

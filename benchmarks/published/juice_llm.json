@@ -1,0 +1,160 @@
+{
+  "summary": {
+    "scoped_challenges": 10,
+    "true_positives": [
+      "exposedMetricsChallenge"
+    ],
+    "false_negatives": [
+      "adminSectionChallenge",
+      "dbSchemaChallenge",
+      "directoryListingChallenge",
+      "errorHandlingChallenge",
+      "forgottenBackupChallenge",
+      "localXssChallenge",
+      "loginAdminChallenge",
+      "restfulXssChallenge",
+      "scoreBoardChallenge"
+    ],
+    "false_positives": [],
+    "challenges_found": "1/10",
+    "precision": 1.0,
+    "recall": 0.1,
+    "f1": 0.1818,
+    "mode": "llm",
+    "base_url": "http://127.0.0.1:3000",
+    "steps": 80,
+    "visited_count": 80,
+    "all_fingerprints": [
+      "misconfig:metrics"
+    ],
+    "notes": [
+      "seed:generic+llm",
+      "login-sqli-miss",
+      "llm-suggest:/administrators"
+    ],
+    "target": "OWASP Juice Shop v17.3.0",
+    "official_list": "benchmarks/juice_shop/official_challenges.json",
+    "wordlist": "benchmarks/wordlists/common_paths.txt"
+  },
+  "audit": {
+    "base_url": "http://127.0.0.1:3000",
+    "mode": "llm",
+    "steps": 80,
+    "visited": [
+      "http://127.0.0.1:3000/",
+      "http://127.0.0.1:3000/login",
+      "http://127.0.0.1:3000/signin",
+      "http://127.0.0.1:3000/sign-in",
+      "http://127.0.0.1:3000/log-in",
+      "http://127.0.0.1:3000/auth",
+      "http://127.0.0.1:3000/account",
+      "http://127.0.0.1:3000/user",
+      "http://127.0.0.1:3000/users",
+      "http://127.0.0.1:3000/register",
+      "http://127.0.0.1:3000/signup",
+      "http://127.0.0.1:3000/admin",
+      "http://127.0.0.1:3000/administrator",
+      "http://127.0.0.1:3000/administrators",
+      "http://127.0.0.1:3000/admin/login",
+      "http://127.0.0.1:3000/adminpanel",
+      "http://127.0.0.1:3000/dashboard",
+      "http://127.0.0.1:3000/manage",
+      "http://127.0.0.1:3000/management",
+      "http://127.0.0.1:3000/console",
+      "http://127.0.0.1:3000/api",
+      "http://127.0.0.1:3000/api/users",
+      "http://127.0.0.1:3000/api/user",
+      "http://127.0.0.1:3000/api/v1",
+      "http://127.0.0.1:3000/api/v2",
+      "http://127.0.0.1:3000/api/login",
+      "http://127.0.0.1:3000/api/auth/login",
+      "http://127.0.0.1:3000/rest",
+      "http://127.0.0.1:3000/graphql",
+      "http://127.0.0.1:3000/swagger.json",
+      "http://127.0.0.1:3000/swagger-ui.html",
+      "http://127.0.0.1:3000/openapi.json",
+      "http://127.0.0.1:3000/api-docs",
+      "http://127.0.0.1:3000/v2/api-docs",
+      "http://127.0.0.1:3000/.env",
+      "http://127.0.0.1:3000/.env.local",
+      "http://127.0.0.1:3000/config",
+      "http://127.0.0.1:3000/config.json",
+      "http://127.0.0.1:3000/config.yml",
+      "http://127.0.0.1:3000/settings.json",
+      "http://127.0.0.1:3000/.git/config",
+      "http://127.0.0.1:3000/.git/HEAD",
+      "http://127.0.0.1:3000/credentials",
+      "http://127.0.0.1:3000/backup",
+      "http://127.0.0.1:3000/backups",
+      "http://127.0.0.1:3000/backup.zip",
+      "http://127.0.0.1:3000/backup.tar.gz",
+      "http://127.0.0.1:3000/backup.sql",
+      "http://127.0.0.1:3000/db.sql",
+      "http://127.0.0.1:3000/dump.sql",
+      "http://127.0.0.1:3000/database.sql",
+      "http://127.0.0.1:3000/www.zip",
+      "http://127.0.0.1:3000/site.zip",
+      "http://127.0.0.1:3000/app.zip",
+      "http://127.0.0.1:3000/old",
+      "http://127.0.0.1:3000/.bak",
+      "http://127.0.0.1:3000/status",
+      "http://127.0.0.1:3000/health",
+      "http://127.0.0.1:3000/healthz",
+      "http://127.0.0.1:3000/metrics",
+      "http://127.0.0.1:3000/actuator",
+      "http://127.0.0.1:3000/actuator/health",
+      "http://127.0.0.1:3000/server-status",
+      "http://127.0.0.1:3000/info",
+      "http://127.0.0.1:3000/uploads",
+      "http://127.0.0.1:3000/files",
+      "http://127.0.0.1:3000/download",
+      "http://127.0.0.1:3000/downloads",
+      "http://127.0.0.1:3000/static",
+      "http://127.0.0.1:3000/assets",
+      "http://127.0.0.1:3000/tmp",
+      "http://127.0.0.1:3000/temp",
+      "http://127.0.0.1:3000/backup/",
+      "http://127.0.0.1:3000/robots.txt",
+      "http://127.0.0.1:3000/sitemap.xml",
+      "http://127.0.0.1:3000/.well-known/security.txt",
+      "http://127.0.0.1:3000/crossdomain.xml",
+      "http://127.0.0.1:3000/#/about",
+      "http://127.0.0.1:3000/#/contact",
+      "http://127.0.0.1:3000/#/login"
+    ],
+    "notes": [
+      "seed:generic+llm",
+      "login-sqli-miss",
+      "llm-suggest:/administrators"
+    ],
+    "phase": "crawl",
+    "findings": [
+      {
+        "title": "Prometheus/metrics endpoint exposed",
+        "category": "security",
+        "severity": "low",
+        "url": "http://127.0.0.1:3000/metrics",
+        "evidence": "# HELP file_uploads_count Total number of successful file uploads grouped by file type.\n# TYPE file_uploads_count counter\n\n# HELP file_upload_errors Total number of failed file uploads grouped by file",
+        "fingerprint": "misconfig:metrics",
+        "persona": "anon",
+        "repro_steps": [
+          "GET http://127.0.0.1:3000/metrics"
+        ],
+        "cvss_hint": 3.1
+      }
+    ],
+    "summary": {
+      "total": 1,
+      "by_severity": {
+        "low": 1
+      },
+      "by_category": {
+        "security": 1
+      },
+      "fingerprints": [
+        "misconfig:metrics"
+      ],
+      "graph_driven": true
+    }
+  }
+}

@@ -1,0 +1,86 @@
+[
+  {
+    "id": "B1",
+    "title": "Broken Help nav link returns 404",
+    "severity": "medium",
+    "how_to_find": "Click Help in the top nav from any page; expect /help to exist.",
+    "fingerprint": "404:/help"
+  },
+  {
+    "id": "B2",
+    "title": "IDOR: /rides lists every user's rides",
+    "severity": "high",
+    "how_to_find": "Log in as alice, book a ride; log in as bob and open /rides \u2014 alice's ride is visible.",
+    "fingerprint": "idor:rides-list"
+  },
+  {
+    "id": "B3",
+    "title": "IDOR: /rides/<id> has no ownership check",
+    "severity": "high",
+    "how_to_find": "As bob, open /rides/<alice_ride_id> directly and see alice's pickup/dropoff.",
+    "fingerprint": "idor:ride-detail"
+  },
+  {
+    "id": "B4",
+    "title": "Any user can cancel another user's ride",
+    "severity": "high",
+    "how_to_find": "As bob, POST /rides/<alice_id>/cancel and watch the status flip to cancelled.",
+    "fingerprint": "idor:cancel"
+  },
+  {
+    "id": "B5",
+    "title": "Negative tip accepted, fare can go negative",
+    "severity": "medium",
+    "how_to_find": "On a ride detail page submit tip amount = -100; fare becomes negative.",
+    "fingerprint": "validation:negative-tip"
+  },
+  {
+    "id": "B6",
+    "title": "Admin panel reachable without auth",
+    "severity": "critical",
+    "how_to_find": "While logged out, open /admin and see the user table.",
+    "fingerprint": "authz:admin-open"
+  },
+  {
+    "id": "B7",
+    "title": "Admin panel renders plaintext passwords",
+    "severity": "critical",
+    "how_to_find": "Open /admin and look at the Password column.",
+    "fingerprint": "secrets:plaintext-passwords"
+  },
+  {
+    "id": "B8",
+    "title": "Reflected XSS on /estimate?q=",
+    "severity": "high",
+    "how_to_find": "Open /estimate?q=<script>alert(1)</script> and observe the payload echoed unescaped.",
+    "fingerprint": "xss:estimate"
+  },
+  {
+    "id": "B9",
+    "title": "SQL-injection shaped 500 on /search",
+    "severity": "high",
+    "how_to_find": "Open /search?q=x' OR 1=1-- and get a raw sqlite error page.",
+    "fingerprint": "sqli:search"
+  },
+  {
+    "id": "B10",
+    "title": "Open redirect via /profile?next=",
+    "severity": "medium",
+    "how_to_find": "Open /profile?saved=1&next=https://evil.example and get redirected off-site.",
+    "fingerprint": "open-redirect:profile"
+  },
+  {
+    "id": "B11",
+    "title": "Unauthenticated JSON IDOR on /api/rides/<id>",
+    "severity": "high",
+    "how_to_find": "With no cookie, GET /api/rides/1 and receive the full ride object.",
+    "fingerprint": "idor:api-ride"
+  },
+  {
+    "id": "B12",
+    "title": "debug_token cookie set without HttpOnly",
+    "severity": "medium",
+    "how_to_find": "After login inspect Set-Cookie: debug_token \u2014 HttpOnly is missing.",
+    "fingerprint": "cookie:no-httponly"
+  }
+]

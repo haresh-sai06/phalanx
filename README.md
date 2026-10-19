@@ -2,240 +2,137 @@
 
 # Phalanx
 
-### Autonomous Multi-Persona QA & Security Testing Swarm
+### Multi-persona QA & security testing swarm
 
-*Point it at your repo. Get a full audit report in ~30 minutes.*
+*Point it at a running app. Get a deduplicated bug report with repro steps.*
 
-![Status](https://img.shields.io/badge/status-concept-blue)
-![Round](https://img.shields.io/badge/HackFusion%202026-Round%201-purple)
+![Status](https://img.shields.io/badge/status-working%20MVP-green)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Made with](https://img.shields.io/badge/built%20with-LangGraph%201.0%20·%20Playwright%20·%20MCP-cyan)
+![Stack](https://img.shields.io/badge/stack-LangGraph%20·%20Playwright%20·%20Flask-cyan)
 
 </div>
 
----
-
-## Overview
-
-**Phalanx** is an autonomous, multi-persona QA and security testing agent that spawns a dynamic fleet of synthetic users (rider, driver, admin, security-agent — auto-sized to your app's complexity), runs them in parallel against your running application, and delivers a deduplicated, reproducible bug report covering **functional, security, and UX** defects — with an executable Playwright script attached to every finding.
-
-Built for the **pre-ship developer loop** — the gap left open by production pentest tools like XBOW and by scripted-QA tools that require humans to write "test this flow."
-
----
-
-## The Problem
-
-Pre-ship QA + security testing is broken:
-
-- **Scripted E2E testing** (Playwright, Cypress) costs **500+ dev-hours per quarter** to write and maintain.
-- **AI-QA SaaS** (Testim.io, MABL) is single-user, closed-cloud, and expensive.
-- **Multi-user interaction bugs** — IDOR, race conditions, permission leaks — require simulating multiple simultaneous users. **No mainstream tool does this today.**
-- **AI pentest tools** (XBOW #1 on HackerOne US, Nov 2025; PentestGPT; Antigravity) are closed-cloud and cannot be deployed on-prem — barring their use in fintech / healthcare / government where source code cannot leave the perimeter.
-
-Result: ~60% of production bugs are found by end users, not QA.
-
----
-
-## The Solution
-
-Phalanx closes the gap with three architectural pillars no existing tool combines:
-
-### 1. Multi-Persona Parallel Swarm
-2 to N synthetic users run **simultaneously**, each with its own Playwright browser context. Cross-persona state fuzzing (persona A creates → persona B modifies → persona A reads) catches concurrency + permission bugs no single-agent tool can find.
-
-### 2. BYOM — Bring Your Own Model
-Cloud (Claude Sonnet 4.5, Gemini 3 Pro, GPT-5), free-tier (Gemini 2.5 Flash), or fully local (Qwen 3 7B/32B via Ollama or vLLM with NVFP4 quantization). Cost-tiered routing pushes 95% of steps to cheap models; frontier models fire only for bug root-cause reasoning. **On-prem deployment is a first-class use case, not a bolt-on.**
-
-### 3. Code-Aware, Zero-Config
-Tree-sitter + embedding-based code retrieval auto-maps your API surface, user roles, auth model, and DB schema. Persona spec is generated automatically — no scripts to write, no configs to tune.
-
----
-
-## Key Features
-
-| # | Feature | Detail |
-|---|---------|--------|
-| 1 | **Multi-Persona Parallel Swarm** | Dynamic 2–N synthetic users exploring simultaneously; auto-sized to codebase complexity |
-| 2 | **Code-Aware Zero-Config** | Tree-sitter + MiniLM embeddings map endpoints, roles, auth without user input |
-| 3 | **BYOM Cost-Tiered Orchestration** | ~$0.08 per audit (cloud cascade) or ₹0 (fully local) |
-| 4 | **On-Prem / Air-Gapped Deployment** | Full local stack fits on a single 24 GB GPU; usable in DPDP / HIPAA / SOC2 environments |
-| 5 | **Unified Functional + Security + UX Report** | Crashes, layout bugs, XSS, IDOR, auth bypass, race conditions — one tool, CVSS-ranked |
-| 6 | **Deterministic Reproduction Scripts** | Every bug ships with executable Playwright script + video + a11y-tree snapshot |
+> **Scope of this PR.** Working LangGraph + Playwright agent (compiled graph with conditional phase edges), RideLite **regression** suite (12 planted bugs), generic discovery probes, and measured discovery on **OWASP Juice Shop** (unseen). Full multi-persona swarm / tree-sitter preflight from [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) remains roadmap.
 
 ---
 
 ## Architecture
 
-```
-┌──────────────────────────────────────────────────────────────────────┐
-│  INPUT:  phalanx audit <repo-url> <app-url>                          │
-└─────────────────────────────────┬────────────────────────────────────┘
-                                  ▼
-┌──────────────────────────────────────────────────────────────────────┐
-│  PRE-FLIGHT ANALYZER                                                 │
-│  tree-sitter AST · MiniLM embeddings · FAISS · API+roles+auth map    │
-└─────────────────────────────────┬────────────────────────────────────┘
-                                  ▼
-┌──────────────────────────────────────────────────────────────────────┐
-│  ORCHESTRATOR — LangGraph 1.0                                        │
-│  Persona Planner · MCP tool bus · Memory Tool + Context Editing      │
-└──────┬──────────────┬──────────────┬──────────────┬──────────────────┘
-       ▼              ▼              ▼              ▼
-   ┌───────┐      ┌───────┐      ┌───────┐      ┌────────┐
-   │ Rider │      │Driver │      │ Admin │      │Security│  ← Persona Swarm
-   │ ctx#1 │      │ ctx#2 │      │ ctx#3 │      │ ctx#4  │    (Playwright
-   └───┬───┘      └───┬───┘      └───┬───┘      └────┬───┘     parallel)
-       │              │              │               │
-       ▼              ▼              ▼               ▼
-       observe (a11y tree) → plan → act → observe → repeat
-                                  │
-                                  ▼
-┌──────────────────────────────────────────────────────────────────────┐
-│  DETECT · DEDUP · REPORT                                             │
-│  Bug Detector · Fingerprint hash · CVSS ranking · HTML/PDF export    │
-└─────────────────────────────────┬────────────────────────────────────┘
-                                  ▼
-        Audit Report · Playwright Repro Scripts · Video Evidence
+```mermaid
+flowchart TD
+  CLI["phalanx audit URL"] --> ORCH
+  subgraph ORCH["LangGraph orchestrator (compiled StateGraph)"]
+    S[start: seed URLs] --> O[observe: Playwright goto + snapshot]
+    O --> P[plan: heuristic queue / optional LLM]
+    P --> A[advance: phase router]
+    A -->|crawl| O
+    A -->|personas| L[login_persona]
+    A -->|idor| X[cross_persona_idor]
+    A -->|drain| O
+    A -->|done| END[END]
+    L --> A
+    X --> A
+  end
+  O --> DET[detectors]
+  DET --> REP[report.md + report.json]
 ```
 
-Full architecture diagram: [`docs/architecture.svg`](docs/architecture.svg)
-
-Deep-dive documents:
-- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — every stage, every model tier, every efficiency layer
-- [`docs/ROADMAP.md`](docs/ROADMAP.md) — 7-phase plan through 2028
-- [`docs/COST-ANALYSIS.md`](docs/COST-ANALYSIS.md) — token math, deployment configurations, TCO comparison
+`run_audit()` invokes the **compiled** graph (`graph.invoke`). Playwright session is held outside state by `run_id` so LangGraph copies do not drop the browser.
 
 ---
 
-## Tech Stack
+## Results
 
-**Agent Orchestration**
-- [LangGraph 1.0](https://blog.langchain.com/langgraph-1-0/) — stateful multi-agent graph
-- [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) — tool bus
-- Anthropic Skills API + Memory Tool + Context Editing
+### 1) RideLite regression suite (NOT discovery)
 
-**Browser Automation**
-- [Playwright](https://playwright.dev/) — parallel browser contexts, a11y-tree observation
-- Set-of-Mark (SoM) visual prompting
+Command: `python -m phalanx.cli benchmark --mode heuristic`
 
-**Code Understanding**
-- [Tree-sitter](https://tree-sitter.github.io/) — multi-language AST parsing
-- SentenceTransformer `all-MiniLM-L6-v2` — code embeddings
-- FAISS — vector retrieval
+The default / `heuristic` / `regression` mode **seeds targeted URLs and payloads** that exercise every planted bug class in `demo_app/` (see `# B1`… comments in `phalanx/graph.py`). Scoring still uses `planted_bugs.json` only in the scorer — but the agent is steered at those classes. **Treat 12/12 as a regression harness, not a claim of novel discovery.**
 
-**LLM Layer (BYOM)**
-- **Cloud:** Claude Sonnet 4.5, Claude Haiku 4.5, Gemini 3 Pro, Gemini 2.5 Flash, GPT-5, GPT-5 mini
-- **Local:** Qwen 3 7B / 32B via Ollama or vLLM 0.8 with NVFP4 quantization
-- **Router:** UniRoute-inspired feature-vector cascade with cold-start support
-
-**Efficiency Stack**
-- Anthropic Prompt Caching (90% cost reduction on static context)
-- TurboRAG-style prefix caching (vLLM `--enable-prefix-caching`)
-- LASER-D compressed reasoning (ICLR 2026) — 64% reasoning-token reduction
-- Accessibility tree over screenshots — 10× observation-token reduction
-- Bug fingerprint dedup, semantic action cache (Redis)
-
-**Serving & Backend**
-- vLLM 0.8, Ollama, SGLang
-- FastAPI + PostgreSQL + Redis
-- Docker Compose (dev) / Kubernetes (prod)
-
-**Frontend**
-- Next.js 15 + Tailwind CSS
-- Live persona swarm dashboard with real-time exploration visualization
-
----
-
-## Cost per Audit (BuggyBox testbench)
-
-| Configuration | Cost per Run |
+| Metric | Heuristic / regression |
 |---|---|
-| Cloud cascade + Anthropic Prompt Caching | **≈ $0.08 (₹7)** |
-| Gemini 2.5 Flash free tier | **₹0** |
-| Fully local (Ollama Qwen 3 7B) | **₹0 (electricity only)** |
+| Bugs found / planted | **12 / 12** |
+| Precision / Recall / F1 | **1.00 / 1.00 / 1.00** |
+| Stability | **20 / 20** consecutive runs passed (see `benchmarks/published/stability_20.json`) |
 
-Compare: XBOW pentest ≈ $6,000/audit. Testim.io ≈ $50/run.
+### 2) Discovery on OWASP Juice Shop (unseen app)
 
----
+Target: Juice Shop **v17.3.0** on `http://127.0.0.1:3000` (prebuilt linux tarball; not Docker).
 
-## Roadmap
+**Scoring is against the official challenge list**, not a hand-written key:
+[`benchmarks/juice_shop/official_challenges.json`](benchmarks/juice_shop/official_challenges.json)
+is taken from Juice Shop's own `/api/Challenges` / `data/static/challenges.yml`, scoped to the
+**10 challenges a black-box, unauthenticated crawler can reach in one step** (no CAPTCHA / coupon
+math / authenticated multi-step puzzles). Each challenge lists the finding fingerprint(s) that count
+as a hit, so scoring is auditable.
 
-- **Phase 1 (HackFusion 2026 · Aug 28–29):** Working prototype with 2 personas, BuggyBox testbench, full report pipeline, live dashboard
-- **Phase 2 (Q4 2026):** WALT-style tool synthesis — personas learn reusable browser tools per app
-- **Phase 3 (Q1 2027):** LoRA-per-persona fine-tuning on app-specific bug patterns
-- **Phase 4 (Q2 2027):** Native CI/CD integration — auto-audit on every GitHub PR
-- **Phase 5 (Q3 2027):** Compliance Mode — signed SOC2 / ISO-27001 evidence bundle export
-- **Phase 6 (Q4 2027):** Mobile app testing via Appium bridge
-- **Phase 7:** Publish [WebArena-Verified](https://github.com/ServiceNow/webarena-verified) benchmark leaderboard entry
+Generic mode uses **only** the app-agnostic wordlist
+[`benchmarks/wordlists/common_paths.txt`](benchmarks/wordlists/common_paths.txt)
+(sourced from SecLists `common.txt` / `raft-small-words` + OWASP WSTG sensitive-file checks) plus
+generic SQLi/XSS payload families applied to forms and query params the crawl discovers. **No
+target-specific paths or payloads.** (An earlier version of this benchmark hard-coded Juice Shop
+paths like `/ftp/*.bak` and `/rest/admin/application-configuration` and scored 6/8 against a
+hand-written key — that was overfitting and has been removed.)
 
----
+| Mode | Official scoped found | Precision | Recall | F1 | Model |
+|---|---|---|---|---|---|
+| **generic** | **1 / 10** | **1.00** | **0.10** | **0.18** | n/a |
+| **llm** | **1 / 10** | **1.00** | **0.10** | **0.18** | qwen2.5:1.5b via llama.cpp |
 
-## Positioning
+Both modes (at equal 80-step budget) find only `exposedMetricsChallenge` — the unauthenticated
+`/metrics` endpoint, which happens to be a standard path in the generic wordlist. Everything else is
+missed: Juice Shop is an Angular SPA whose vulnerable surface lives behind JS routes (`/#/…`) and
+non-standard API paths (`/rest/user/login`, `/rest/products/search`, `/ftp`) that an app-agnostic
+crawler does not know and cannot discover from the static HTML. The 1.5B LLM planner did not help.
 
-|  | Playwright | Testim | Antigravity | XBOW | PentestGPT | **Phalanx** |
-|---|:-:|:-:|:-:|:-:|:-:|:-:|
-| Zero-config | ✗ | Partial | ✓ | ✓ | Partial | **✓** |
-| Multi-persona parallel | ✗ | ✗ | ✗ | Partial | ✗ | **✓** |
-| Functional + Security unified | ✗ | ✗ | Partial | Security only | Security only | **✓** |
-| BYOM | N/A | ✗ | ✗ | ✗ | Partial | **✓** |
-| On-prem / air-gapped | ✓ | ✗ | ✗ | ✗ | Partial | **✓** |
-| Cost-tiered routing | N/A | ✗ | ✗ | ✗ | ✗ | **✓** |
-| Cost per audit | Free* | ~$50 | ~$5 | $6,000 | ~$2 | **~$0.08** |
+**Honest takeaway:** against an unseen SPA, this crawler's black-box discovery is weak (recall 0.10).
+The strength of the project is the **regression harness** (section 1), not zero-knowledge discovery.
+See the resume guidance at the bottom of this section.
 
-*Free per run, but ~500 dev-hours/quarter in script maintenance.
+Reproduce:
 
-> **XBOW proved offensive AI pentest works at HackerOne scale — in production, closed-cloud, security-only.**
-> **Phalanx solves the pre-ship dev loop — multi-persona, on-prem, model-agnostic, unified QA + security.**
+```bash
+# terminal A — Juice Shop
+cd /path/to/juice-shop && npm start -- --port 3000
+# terminal B
+python benchmarks/run_discovery.py --url http://127.0.0.1:3000 --mode generic --max-steps 80
+LLM_BASE_URL=http://127.0.0.1:11434/v1 LLM_MODEL=qwen2.5:1.5b   python benchmarks/run_discovery.py --url http://127.0.0.1:3000 --mode llm --max-steps 80
+```
 
----
-
-## Status
-
-> **Round 1 concept submission for HackFusion 2026.** Full working prototype targeted for Round 2 (24-hour offline hackathon, Aug 28–29, 2026 · Chennai Institute of Technology). This repository will progressively fill in with the core orchestrator, persona actors, BuggyBox testbench, and live dashboard during the 24-hour build. Watch this space.
-
----
-
-## Team — GravitySurfers
-
-- Haresh Sainaath S
-- Shyam Prasath S
-- Navika G
-- Maithra Rajaram
-
-**Institution:** Sri Krishna College of Technology, Coimbatore
-
-Prototype under /prototype - Kindly check
+**Resume guidance:** lead with the measured RideLite **regression** result and the engineering
+(compiled LangGraph graph, nav-stable Playwright, 20/20 reproducibility). Do **not** put a Juice Shop
+"discovery" number on a resume — recall is only 0.10 and would not survive scrutiny.
 
 ---
 
-## HackFusion 2026
+## CI
 
-Submitted to **HackFusion 2026** — National-Level 24-Hour Offline Hackathon organized by the Department of Computer Science & Engineering, [Chennai Institute of Technology](https://citchennai.edu.in/).
+OAuth token lacks `workflow` scope → copy [`ci/github-actions.yml`](ci/github-actions.yml) to `.github/workflows/ci.yml`. Smoke test retries once on Playwright flakes.
 
-- **Round 1 (Online PPT):** Aug 3–17, 2026
-- **Round 2 (Offline Hackathon):** Aug 28–29, 2026 · Chennai
-- **Prize Pool:** ₹1,00,000
+```bash
+pytest -q tests/
+```
 
 ---
+
+## Quickstart
+
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+python -m playwright install chromium
+
+pytest -q tests/test_detectors.py tests/test_demo_app.py
+python -m phalanx.cli benchmark --mode heuristic   # RideLite regression
+python -m phalanx.cli audit http://127.0.0.1:3000 --mode generic
+```
+
+---
+
+## Tech stack
+
+LangGraph · Playwright · Flask (RideLite) · pytest · optional OpenAI-compatible LLM (llama.cpp / Ollama)
 
 ## License
 
-MIT © 2026 GravitySurfers (proposed — finalize before public release)
-
----
-
-## References & Prior Art
-
-- [XBOW hits #1 on HackerOne US](https://www.businesswire.com/news/home/20251112470912/en/) (Nov 2025)
-- [LangGraph 1.0 release](https://blog.langchain.com/langgraph-1-0/) (Oct 2025)
-- [Anthropic Context Management](https://claude.com/blog/context-management) — Memory Tool + Context Editing
-- [TurboRAG paper](https://arxiv.org/abs/2410.07590) — precomputed KV cache reuse
-- [LASER-D (ICLR 2026)](https://openreview.net/) — compressed chain-of-thought reasoning
-- [WebArena-Verified](https://github.com/ServiceNow/webarena-verified) — target benchmark
-- [Model Context Protocol](https://modelcontextprotocol.io/) — tool interoperability standard
-
----
-
-<div align="center">
-<sub>Built with ambition, shipped with rigor · GravitySurfers · HackFusion 2026</sub>
-</div>
+MIT.
