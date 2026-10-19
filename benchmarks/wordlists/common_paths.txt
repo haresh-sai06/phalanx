@@ -1,0 +1,107 @@
+# Generic web-content discovery wordlist for Phalanx generic mode.
+#
+# App-agnostic only: standard admin/config/backup/API/docs paths that appear
+# across many web stacks. NO target-specific names.
+#
+# Sourced from the commonly used open discovery lists:
+#   - SecLists Discovery/Web-Content/common.txt
+#       https://github.com/danielmiessler/SecLists/blob/master/Discovery/Web-Content/common.txt
+#   - SecLists Discovery/Web-Content/raft-small-words.txt (admin/config/backup subset)
+#       https://github.com/danielmiessler/SecLists/blob/master/Discovery/Web-Content/raft-small-words.txt
+#   - OWASP WSTG common sensitive-file checks (robots.txt, .git, .env, backups)
+#       https://owasp.org/www-project-web-security-testing-guide/
+#
+# One path per line; blank lines and # comments ignored.
+
+# entry / auth
+login
+signin
+sign-in
+log-in
+auth
+account
+user
+users
+register
+signup
+
+# admin surfaces
+admin
+administrator
+admin/login
+adminpanel
+dashboard
+manage
+management
+console
+
+# api surfaces
+api
+api/users
+api/user
+api/v1
+api/v2
+api/login
+api/auth/login
+rest
+graphql
+
+# docs / specs
+swagger.json
+swagger-ui.html
+openapi.json
+api-docs
+v2/api-docs
+
+# config / secrets (sensitive files)
+.env
+.env.local
+config
+config.json
+config.yml
+settings.json
+.git/config
+.git/HEAD
+credentials
+
+# backups / archives (generic extensions and names)
+backup
+backups
+backup.zip
+backup.tar.gz
+backup.sql
+db.sql
+dump.sql
+database.sql
+www.zip
+site.zip
+app.zip
+old
+.bak
+
+# ops / status
+status
+health
+healthz
+metrics
+actuator
+actuator/health
+server-status
+info
+
+# listings / uploads
+uploads
+files
+download
+downloads
+static
+assets
+tmp
+temp
+backup/
+
+# standard metadata
+robots.txt
+sitemap.xml
+.well-known/security.txt
+crossdomain.xml

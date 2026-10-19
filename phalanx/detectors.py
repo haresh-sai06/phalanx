@@ -254,29 +254,44 @@ def detect_admin_config_exposure(snap, persona: str) -> list[Finding]:
     return out
 
 
+def _looks_like_html(snap) -> bool:
+    """True if the body is an HTML page (e.g. an SPA catch-all), not a raw file.
+
+    Single-page apps return HTTP 200 + index.html for unknown paths, so a 200 on
+    /backup.zip is NOT evidence the file exists. We only treat a candidate backup
+    path as real when the body is not HTML.
+    """
+    body = (snap.html or snap.text or "").lstrip().lower()
+    return body.startswith("<!doctype html") or body.startswith("<html") or "<html" in body[:500]
+
+
 def detect_backup_file(snap, persona: str) -> list[Finding]:
     out = []
     path = urlparse(snap.url).path.lower()
-    if snap.status == 200 and any(path.endswith(ext) for ext in (".bak", ".old", ".zip", ".sql", ".kdbx")):
+    is_backup_path = any(path.endswith(ext) for ext in (".bak", ".old", ".zip", ".sql", ".kdbx", ".tar.gz"))
+    # Require: 200, a backup-looking path, AND a body that is not an HTML page.
+    # The HTML guard removes SPA catch-all false positives.
+    if snap.status == 200 and is_backup_path and not _looks_like_html(snap):
         out.append(Finding(
             title=f"Sensitive backup/artifact downloadable: {path}",
             category="security", severity="medium", url=snap.url,
-            evidence=f"HTTP {snap.status} for {path}",
+            evidence=f"HTTP {snap.status}, non-HTML body for {path}",
             fingerprint="misconfig:backup-file",
             persona=persona,
             repro_steps=[f"GET {snap.url}"],
             cvss_hint=5.3,
         ))
-    # Also flag when an FTP listing page links to .bak files
+    # Flag backup artifacts linked from a genuine directory listing.
     html = snap.html or ""
-    if ".bak" in html and ("ftp/" in html or "listing" in (snap.text or "").lower()):
+    listing = "listing directory" in (snap.text or "").lower() or "index of /" in (snap.text or "").lower()
+    if listing and any(e in html.lower() for e in (".bak", ".zip", ".sql", ".kdbx")):
         out.append(Finding(
             title="Backup files linked from directory listing",
             category="security", severity="medium", url=snap.url,
-            evidence="Directory listing references .bak artifacts",
+            evidence="Directory listing references backup artifacts",
             fingerprint="misconfig:backup-file",
             persona=persona,
-            repro_steps=[f"Open {snap.url}", "Download *.bak"],
+            repro_steps=[f"Open {snap.url}", "Download the linked backup"],
             cvss_hint=5.3,
         ))
     return out

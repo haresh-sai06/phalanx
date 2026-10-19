@@ -103,43 +103,38 @@ def _regression_seeds(base: str) -> list[str]:
     ]
 
 
+def _load_common_paths() -> list[str]:
+    """App-agnostic discovery wordlist (documented source in the file header)."""
+    from pathlib import Path as _P
+    wl = _P(__file__).resolve().parents[1] / "benchmarks" / "wordlists" / "common_paths.txt"
+    paths = []
+    try:
+        for line in wl.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            paths.append("/" + line.lstrip("/"))
+    except FileNotFoundError:
+        paths = ["/", "/login", "/admin", "/api", "/robots.txt", "/.env"]
+    if "/" not in paths:
+        paths.insert(0, "/")
+    return paths
+
+
+# Generic login endpoints to probe for SQLi auth-bypass. These are common across
+# frameworks (Express/Rails/Django/Spring) and are part of the standard wordlist,
+# not specific to any one app.
+GENERIC_LOGIN_PATHS = ("/login", "/api/login", "/api/auth/login", "/auth/login")
+
+
 def _generic_seeds(base: str) -> list[str]:
-    """Non-targeted discovery seeds — no knowledge of a specific app's bugs."""
-    common = [
-        "/",
-        "/login",
-        "/signin",
-        "/admin",
-        "/administrator",
-        "/api",
-        "/api/Users",
-        "/api/users",
-        "/api/v1",
-        "/api/v1/users",
-        "/rest",
-        "/rest/products/search?q=test",
-        f"/rest/products/search?q={quote(XSS_PAYLOAD)}",
-        f"/rest/products/search?q={quote(SQLI_PAYLOAD)}",
-        "/rest/admin/application-configuration",
-        "/rest/user/login",
-        "/graphql",
-        "/swagger.json",
-        "/openapi.json",
-        "/robots.txt",
-        "/ftp",
-        "/ftp/package.json.bak",
-        "/ftp/coupons_2013.md.bak",
-        "/ftp/acquisitions.md",
-        "/metrics",
-        "/actuator",
-        "/.env",
-        "/#/",
-        "/#/login",
-        "/#/search",
-        "/#/administration",
-        "/#/score-board",
-    ]
-    return [base + p if not p.startswith("http") else p for p in common]
+    """Non-targeted discovery seeds from the documented common-path wordlist.
+
+    No app-specific paths or payloads. SQLi/XSS are applied generically to forms
+    and to query parameters on pages the crawl discovers (see observe_node), not
+    to hard-coded endpoints.
+    """
+    return [base + p for p in _load_common_paths()]
 
 
 # ── nodes ──────────────────────────────────────────────────────────────────
@@ -226,7 +221,7 @@ def observe_node(state: GraphState) -> GraphState:
                         )
                     ],
                 )
-            # Juice-shop-style SQLi on product search returns unexpected volume / error
+            # Generic SQL error leakage on any JSON/API endpoint
             if "sqlite" in low or "sequelize" in low or "syntax error" in low:
                 _add(
                     state,
@@ -248,7 +243,7 @@ def observe_node(state: GraphState) -> GraphState:
     # Generic auth-bypass probe: SQLi-shaped login against common JSON login endpoints
     mode = state.get("mode") or "heuristic"
     if mode in ("generic", "llm") and not any(n.startswith("login-sqli") for n in (state.get("notes") or [])):
-        for login_path in ("/rest/user/login", "/api/login", "/api/auth/login", "/login"):
+        for login_path in GENERIC_LOGIN_PATHS:
             status, body = session.request_api_post(
                 login_path,
                 {"email": "' or 1=1--", "password": "x"},
@@ -483,7 +478,7 @@ def _ask_llm(state: GraphState) -> str | None:
     prompt = (
         "You are a security QA agent exploring a web app. "
         "Given the URLs already visited and findings so far, reply with ONE next path "
-        "to visit (e.g. /admin or /rest/products/search?q=test or /#/search). "
+        "to visit (e.g. /admin, /api/users, /backup.zip, or a path you saw linked). "
         "Prefer paths that look like admin panels, search, login, API, or file dumps. "
         "Reply with ONLY the path.\n\n"
         f"Visited: {state.get('visited', [])[-12:]}\n"
