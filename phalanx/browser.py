@@ -306,10 +306,17 @@ class BrowserSession:
 
     def request_api_post(self, path: str, data: dict | str, as_json: bool = True) -> tuple[int, str]:
         assert self.page
+        import json as _json
         url = path if path.startswith("http") else urljoin(self.base_url + "/", path.lstrip("/"))
         try:
             if as_json:
-                resp = self.page.context.request.post(url, data=data, timeout=10_000)
+                payload = data if isinstance(data, str) else _json.dumps(data)
+                resp = self.page.context.request.post(
+                    url,
+                    data=payload,
+                    headers={"Content-Type": "application/json"},
+                    timeout=10_000,
+                )
             else:
                 resp = self.page.context.request.post(url, form=data, timeout=10_000)
             return resp.status, resp.text()

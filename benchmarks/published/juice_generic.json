@@ -1,0 +1,284 @@
+{
+  "summary": {
+    "planted": 8,
+    "found": 6,
+    "true_positives": [
+      "authz:admin-config",
+      "misconfig:backup-file",
+      "misconfig:directory-listing",
+      "misconfig:metrics",
+      "sqli:error-page",
+      "sqli:login"
+    ],
+    "false_negatives": [
+      "authz:admin-section",
+      "xss:dom-search"
+    ],
+    "false_positives": [],
+    "bugs_found_out_of_planted": "6/8",
+    "precision": 1.0,
+    "recall": 0.75,
+    "f1": 0.8571,
+    "mode": "generic",
+    "base_url": "http://127.0.0.1:3000",
+    "steps": 55,
+    "visited_count": 55,
+    "notes": [
+      "seed:generic",
+      "login-sqli"
+    ],
+    "all_fingerprints": [
+      "authz:admin-config",
+      "misconfig:backup-file",
+      "misconfig:directory-listing",
+      "misconfig:metrics",
+      "sqli:error-page",
+      "sqli:login"
+    ],
+    "target": "owasp-juice-shop",
+    "ground_truth": "benchmarks/juice_shop/ground_truth.json"
+  },
+  "audit": {
+    "base_url": "http://127.0.0.1:3000",
+    "mode": "generic",
+    "steps": 55,
+    "visited": [
+      "http://127.0.0.1:3000/",
+      "http://127.0.0.1:3000/login",
+      "http://127.0.0.1:3000/signin",
+      "http://127.0.0.1:3000/admin",
+      "http://127.0.0.1:3000/administrator",
+      "http://127.0.0.1:3000/api",
+      "http://127.0.0.1:3000/api/Users",
+      "http://127.0.0.1:3000/api/users",
+      "http://127.0.0.1:3000/api/v1",
+      "http://127.0.0.1:3000/api/v1/users",
+      "http://127.0.0.1:3000/rest",
+      "http://127.0.0.1:3000/rest/products/search?q=test",
+      "http://127.0.0.1:3000/rest/products/search?q=%3Cscript%3Ealert%28%22phalanx%22%29%3C/script%3E",
+      "http://127.0.0.1:3000/rest/products/search?q=x%27%20OR%201%3D1--",
+      "http://127.0.0.1:3000/rest/admin/application-configuration",
+      "http://127.0.0.1:3000/rest/user/login",
+      "http://127.0.0.1:3000/graphql",
+      "http://127.0.0.1:3000/swagger.json",
+      "http://127.0.0.1:3000/openapi.json",
+      "http://127.0.0.1:3000/robots.txt",
+      "http://127.0.0.1:3000/ftp",
+      "http://127.0.0.1:3000/ftp/package.json.bak",
+      "http://127.0.0.1:3000/ftp/coupons_2013.md.bak",
+      "http://127.0.0.1:3000/ftp/acquisitions.md",
+      "http://127.0.0.1:3000/metrics",
+      "http://127.0.0.1:3000/actuator",
+      "http://127.0.0.1:3000/.env",
+      "http://127.0.0.1:3000/#/",
+      "http://127.0.0.1:3000/#/login",
+      "http://127.0.0.1:3000/#/search",
+      "http://127.0.0.1:3000/#/administration",
+      "http://127.0.0.1:3000/#/score-board",
+      "http://127.0.0.1:3000/#/about",
+      "http://127.0.0.1:3000/#/contact",
+      "http://127.0.0.1:3000/#/photo-wall",
+      "http://127.0.0.1:3000/redirect?to=https://github.com/juice-shop/juice-shop",
+      "http://127.0.0.1:3000/login#/about",
+      "http://127.0.0.1:3000/login#/contact",
+      "http://127.0.0.1:3000/login#/login",
+      "http://127.0.0.1:3000/login#/photo-wall",
+      "http://127.0.0.1:3000/signin#/about",
+      "http://127.0.0.1:3000/signin#/contact",
+      "http://127.0.0.1:3000/signin#/login",
+      "http://127.0.0.1:3000/signin#/photo-wall",
+      "http://127.0.0.1:3000/admin#/about",
+      "http://127.0.0.1:3000/admin#/contact",
+      "http://127.0.0.1:3000/admin#/login",
+      "http://127.0.0.1:3000/admin#/photo-wall",
+      "http://127.0.0.1:3000/administrator#/about",
+      "http://127.0.0.1:3000/administrator#/contact",
+      "http://127.0.0.1:3000/administrator#/login",
+      "http://127.0.0.1:3000/administrator#/photo-wall",
+      "http://127.0.0.1:3000/graphql#/about",
+      "http://127.0.0.1:3000/graphql#/contact",
+      "http://127.0.0.1:3000/graphql#/login"
+    ],
+    "notes": [
+      "seed:generic",
+      "login-sqli"
+    ],
+    "phase": "crawl",
+    "findings": [
+      {
+        "title": "SQL injection auth bypass on /rest/user/login",
+        "category": "security",
+        "severity": "critical",
+        "url": "http://127.0.0.1:3000/rest/user/login",
+        "evidence": "{\"authentication\":{\"token\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdGF0dXMiOiJzdWNjZXNzIiwiZGF0YSI6eyJpZCI6MSwidXNlcm5hbWUiOiIiLCJlbWFpbCI6ImFkbWluQGp1aWNlLXNoLm9wIiwicGFzc3dvcmQiOiIwMTkyMDIzYTdiYmQ3MzI1MDUxNmYwNjlkZjE4YjUwMCIsInJvbGUiOiJhZG1pbiIsImRlbHV4ZVRva2VuIjoiIiwibGFzdExvZ2luSXAiOiIiLCJwcm9",
+        "fingerprint": "sqli:login",
+        "persona": "anon",
+        "repro_steps": [
+          "POST /rest/user/login JSON email=\"x' OR 1=1--\""
+        ],
+        "cvss_hint": 9.8
+      },
+      {
+        "title": "SQL error page exposed on /rest/products/search",
+        "category": "security",
+        "severity": "high",
+        "url": "http://127.0.0.1:3000/rest/products/search?q=x%27%20OR%201%3D1--",
+        "evidence": "OWASP Juice Shop (Express ^4.21.0)\n500 Error: SQLITE_ERROR: incomplete input",
+        "fingerprint": "sqli:error-page",
+        "persona": "anon",
+        "repro_steps": [
+          "Open http://127.0.0.1:3000/rest/products/search?q=x%27%20OR%201%3D1--"
+        ],
+        "cvss_hint": 8.6
+      },
+      {
+        "title": "Admin application configuration readable without auth",
+        "category": "security",
+        "severity": "medium",
+        "url": "http://127.0.0.1:3000/rest/admin/application-configuration",
+        "evidence": "{\"config\":{\"server\":{\"port\":3000,\"basePath\":\"\",\"baseUrl\":\"http://localhost:3000\"},\"application\":{\"domain\":\"juice-sh.op\",\"name\":\"OWASP Juice Shop\",\"logo\":\"JuiceShop_Logo.png\",\"favicon\":\"favicon_js.ico\",\"theme\":\"bluegrey-lightgreen\",\"showVers",
+        "fingerprint": "authz:admin-config",
+        "persona": "anon",
+        "repro_steps": [
+          "GET http://127.0.0.1:3000/rest/admin/application-configuration unauthenticated"
+        ],
+        "cvss_hint": 5.3
+      },
+      {
+        "title": "Directory listing exposed at /ftp",
+        "category": "security",
+        "severity": "medium",
+        "url": "http://127.0.0.1:3000/ftp",
+        "evidence": "~ / ftp\nquarantine4/22/2025 9:59:13 PM\nacquisitions.md9094/22/2025 9:59:13 PM\nannouncement_encrypted.md3692374/22/2025 9:59:13 PM\ncoupons_2013.md.bak1314/22/2025 9:59:13 PM\neastere.gg3244/22/2025 9:59:13 PM\nencrypt.pyc5734/22/2025 9:59:13 P",
+        "fingerprint": "misconfig:directory-listing",
+        "persona": "anon",
+        "repro_steps": [
+          "Open http://127.0.0.1:3000/ftp"
+        ],
+        "cvss_hint": 5.3
+      },
+      {
+        "title": "Backup files linked from directory listing",
+        "category": "security",
+        "severity": "medium",
+        "url": "http://127.0.0.1:3000/ftp",
+        "evidence": "Directory listing references .bak artifacts",
+        "fingerprint": "misconfig:backup-file",
+        "persona": "anon",
+        "repro_steps": [
+          "Open http://127.0.0.1:3000/ftp",
+          "Download *.bak"
+        ],
+        "cvss_hint": 5.3
+      },
+      {
+        "title": "Prometheus/metrics endpoint exposed",
+        "category": "security",
+        "severity": "low",
+        "url": "http://127.0.0.1:3000/metrics",
+        "evidence": "# HELP file_uploads_count Total number of successful file uploads grouped by file type.\n# TYPE file_uploads_count counter\n\n# HELP file_upload_errors Total number of failed file uploads grouped by file",
+        "fingerprint": "misconfig:metrics",
+        "persona": "anon",
+        "repro_steps": [
+          "GET http://127.0.0.1:3000/metrics"
+        ],
+        "cvss_hint": 3.1
+      }
+    ],
+    "summary": {
+      "total": 6,
+      "by_severity": {
+        "critical": 1,
+        "high": 1,
+        "medium": 3,
+        "low": 1
+      },
+      "by_category": {
+        "security": 6
+      },
+      "fingerprints": [
+        "authz:admin-config",
+        "misconfig:backup-file",
+        "misconfig:directory-listing",
+        "misconfig:metrics",
+        "sqli:error-page",
+        "sqli:login"
+      ],
+      "graph_driven": true
+    }
+  },
+  "ground_truth": [
+    {
+      "id": "JS1",
+      "fingerprint": "misconfig:directory-listing",
+      "challenge_key": "directoryListingChallenge",
+      "title": "FTP / confidential document directory listing",
+      "severity": "medium",
+      "in_scope": true,
+      "source": "OWASP Juice Shop challenge: Confidential Document / Directory Listing"
+    },
+    {
+      "id": "JS2",
+      "fingerprint": "sqli:error-page",
+      "challenge_key": "errorHandlingChallenge",
+      "title": "SQL error page on product search",
+      "severity": "high",
+      "in_scope": true,
+      "source": "OWASP Juice Shop challenge: Error Handling"
+    },
+    {
+      "id": "JS3",
+      "fingerprint": "sqli:login",
+      "challenge_key": "loginAdminChallenge",
+      "title": "SQL injection login bypass (admin token)",
+      "severity": "critical",
+      "in_scope": true,
+      "source": "OWASP Juice Shop challenge: Login Admin"
+    },
+    {
+      "id": "JS4",
+      "fingerprint": "misconfig:metrics",
+      "challenge_key": null,
+      "title": "Prometheus metrics endpoint exposed",
+      "severity": "low",
+      "in_scope": true,
+      "source": "OWASP Juice Shop exposed /metrics (misconfiguration class)"
+    },
+    {
+      "id": "JS5",
+      "fingerprint": "authz:admin-config",
+      "challenge_key": "adminSectionChallenge",
+      "title": "Unauthenticated admin application-configuration",
+      "severity": "medium",
+      "in_scope": true,
+      "source": "OWASP Juice Shop /rest/admin/application-configuration"
+    },
+    {
+      "id": "JS6",
+      "fingerprint": "misconfig:backup-file",
+      "challenge_key": "forgottenBackupChallenge",
+      "title": "Backup artifacts linked under /ftp",
+      "severity": "medium",
+      "in_scope": true,
+      "source": "OWASP Juice Shop challenge: Forgotten Sales Backup"
+    },
+    {
+      "id": "JS7",
+      "fingerprint": "xss:dom-search",
+      "challenge_key": "localXssChallenge",
+      "title": "DOM XSS via search (Angular)",
+      "severity": "high",
+      "in_scope": true,
+      "source": "OWASP Juice Shop challenge: DOM XSS \u2014 hard for API-only probes; expected miss OK"
+    },
+    {
+      "id": "JS8",
+      "fingerprint": "authz:admin-section",
+      "challenge_key": "adminSectionChallenge",
+      "title": "Administration section reachable",
+      "severity": "high",
+      "in_scope": true,
+      "source": "OWASP Juice Shop challenge: Admin Section (SPA route)"
+    }
+  ]
+}

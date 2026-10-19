@@ -50,13 +50,22 @@ def detect_reflected_xss(snap, persona: str) -> list[Finding]:
 
 def detect_sqli_error(snap, persona: str) -> list[Finding]:
     out = []
-    markers = ("sqlite3.OperationalError", "syntax error", "SQLException", "pg_query", "mysql_fetch")
-    if any(m.lower() in snap.text.lower() or m.lower() in snap.html.lower() for m in markers):
+    markers = ("sqlite3.OperationalError", "sqlite_error", "syntax error", "SQLException", "pg_query", "mysql_fetch", "sequelize", "incomplete input")
+    blob = (snap.text or "") + "\n" + (snap.html or "")
+    if any(m.lower() in blob.lower() for m in markers):
+        path = urlparse(snap.url).path
+        # Keep RideLite regression fingerprint; use generic for other apps
+        if path.rstrip("/") == "/search":
+            fp = "sqli:search"
+        elif "product" in path or "/rest/" in path:
+            fp = "sqli:error-page"
+        else:
+            fp = _fp("sqli", path)
         out.append(Finding(
-            title=f"SQL error page exposed on {urlparse(snap.url).path}",
+            title=f"SQL error page exposed on {path}",
             category="security", severity="high", url=snap.url,
-            evidence=snap.text[:300],
-            fingerprint="sqli:search" if "search" in urlparse(snap.url).path else _fp("sqli", urlparse(snap.url).path),
+            evidence=(snap.text or blob)[:300],
+            fingerprint=fp,
             persona=persona, repro_steps=[f"Open {snap.url}"], cvss_hint=8.6,
         ))
     return out
@@ -182,4 +191,92 @@ def detect_all(snap, persona: str = "explorer", current_user: str | None = None)
     findings += detect_negative_fare(snap, persona)
     findings += detect_idor_list(snap, persona, current_user)
     findings += detect_idor_detail(snap, persona, current_user)
+    findings += detect_directory_listing(snap, persona)
+    findings += detect_metrics_exposure(snap, persona)
+    findings += detect_admin_config_exposure(snap, persona)
+    findings += detect_backup_file(snap, persona)
     return findings
+
+
+def detect_directory_listing(snap, persona: str) -> list[Finding]:
+    out = []
+    markers = ("listing directory", "index of /", "directory listing for")
+    blob = (snap.text or "") + "\n" + (snap.html or "")
+    low = blob.lower()
+    if any(m in low for m in markers) or (
+        "href=\"ftp/" in (snap.html or "") and "quarantine" in low
+    ):
+        path = urlparse(snap.url).path.rstrip("/") or "/"
+        out.append(Finding(
+            title=f"Directory listing exposed at {path}",
+            category="security", severity="medium", url=snap.url,
+            evidence=snap.text[:240] or snap.html[:240],
+            fingerprint="misconfig:directory-listing",
+            persona=persona,
+            repro_steps=[f"Open {snap.url}"],
+            cvss_hint=5.3,
+        ))
+    return out
+
+
+def detect_metrics_exposure(snap, persona: str) -> list[Finding]:
+    out = []
+    body = snap.text or snap.html or ""
+    if ("# HELP" in body and "# TYPE" in body) or "nodejs_" in body or "process_cpu" in body:
+        out.append(Finding(
+            title="Prometheus/metrics endpoint exposed",
+            category="security", severity="low", url=snap.url,
+            evidence=body[:200],
+            fingerprint="misconfig:metrics",
+            persona=persona,
+            repro_steps=[f"GET {snap.url}"],
+            cvss_hint=3.1,
+        ))
+    return out
+
+
+def detect_admin_config_exposure(snap, persona: str) -> list[Finding]:
+    """Unauthenticated admin/application config JSON."""
+    out = []
+    body = snap.text or snap.html or ""
+    path = urlparse(snap.url).path
+    if "admin" in path.lower() and snap.status == 200:
+        if '"config"' in body and ('"application"' in body or '"server"' in body):
+            out.append(Finding(
+                title="Admin application configuration readable without auth",
+                category="security", severity="medium", url=snap.url,
+                evidence=body[:240],
+                fingerprint="authz:admin-config",
+                persona=persona,
+                repro_steps=[f"GET {snap.url} unauthenticated"],
+                cvss_hint=5.3,
+            ))
+    return out
+
+
+def detect_backup_file(snap, persona: str) -> list[Finding]:
+    out = []
+    path = urlparse(snap.url).path.lower()
+    if snap.status == 200 and any(path.endswith(ext) for ext in (".bak", ".old", ".zip", ".sql", ".kdbx")):
+        out.append(Finding(
+            title=f"Sensitive backup/artifact downloadable: {path}",
+            category="security", severity="medium", url=snap.url,
+            evidence=f"HTTP {snap.status} for {path}",
+            fingerprint="misconfig:backup-file",
+            persona=persona,
+            repro_steps=[f"GET {snap.url}"],
+            cvss_hint=5.3,
+        ))
+    # Also flag when an FTP listing page links to .bak files
+    html = snap.html or ""
+    if ".bak" in html and ("ftp/" in html or "listing" in (snap.text or "").lower()):
+        out.append(Finding(
+            title="Backup files linked from directory listing",
+            category="security", severity="medium", url=snap.url,
+            evidence="Directory listing references .bak artifacts",
+            fingerprint="misconfig:backup-file",
+            persona=persona,
+            repro_steps=[f"Open {snap.url}", "Download *.bak"],
+            cvss_hint=5.3,
+        ))
+    return out

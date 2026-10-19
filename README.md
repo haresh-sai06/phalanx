@@ -12,17 +12,7 @@
 
 </div>
 
-> **Scope of this PR.** The original Phalanx write-up was a concept (HTML prototype + docs). This branch ships a **working LangGraph + Playwright agent loop**, a deliberately buggy demo app with 12 planted bugs, a reproducible benchmark, pytest + GitHub Actions CI, and measured results. The full multi-persona swarm / tree-sitter preflight / cost-tiered BYOM stack from [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) remains the roadmap — not claimed as shipping here.
-
----
-
-## Problem
-
-Pre-ship QA misses the bugs that need **two users at once**: IDOR, cancel-someone-else's-resource, permission leaks, racey state. Scripted Playwright suites don't invent those scenarios; single-agent AI QA rarely switches persona mid-run. Phalanx's MVP closes that gap with a small, inspectable loop:
-
-1. Crawl + probe a target with Playwright (a11y-visible pages, forms, cookies, API GETs).
-2. Switch personas (alice → bob) and re-hit the same resources.
-3. Dedup findings by fingerprint and emit a Markdown/JSON report with repro steps.
+> **Scope of this PR.** Working LangGraph + Playwright agent (compiled graph with conditional phase edges), RideLite **regression** suite (12 planted bugs), generic discovery probes, and measured discovery on **OWASP Juice Shop** (unseen). Full multi-persona swarm / tree-sitter preflight from [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) remains roadmap.
 
 ---
 
@@ -30,69 +20,79 @@ Pre-ship QA misses the bugs that need **two users at once**: IDOR, cancel-someon
 
 ```mermaid
 flowchart TD
-  CLI["phalanx audit URL<br/>or phalanx benchmark"] --> ORCH
-  subgraph ORCH["LangGraph orchestrator"]
-    S[start: seed URLs + payloads] --> O[observe: Playwright goto + snapshot]
+  CLI["phalanx audit URL"] --> ORCH
+  subgraph ORCH["LangGraph orchestrator (compiled StateGraph)"]
+    S[start: seed URLs] --> O[observe: Playwright goto + snapshot]
     O --> P[plan: heuristic queue / optional LLM]
-    P --> L[login_persona: alice, then bob]
-    L --> X[cross_persona_idor: list / detail / cancel]
-    X --> O
+    P --> A[advance: phase router]
+    A -->|crawl| O
+    A -->|personas| L[login_persona]
+    A -->|idor| X[cross_persona_idor]
+    A -->|drain| O
+    A -->|done| END[END]
+    L --> A
+    X --> A
   end
-  O --> DET[detectors<br/>XSS · SQLi · IDOR · authz · cookies · open redirect · validation]
+  O --> DET[detectors]
   DET --> REP[report.md + report.json]
-  BENCH[planted_bugs.json] -.->|scoring only| BENCHRUN[benchmarks/run_benchmark.py]
-  REP --> BENCHRUN
 ```
 
-**Design decisions / trade-offs**
-
-| Decision | Why | Trade-off |
-|---|---|---|
-| Heuristic detectors as the default mode | Benchmark must run in CI with no API key and be deterministic | Does not invent novel bug classes; LLM mode is opt-in |
-| Planted-bug demo app (`demo_app/`) instead of a live SaaS | Reproducible recall/precision; no ToS / auth / flakes | Scores are on an app the detectors know how to probe — reported honestly below |
-| Fingerprint-based dedup | Same bug hit by alice and bob collapses to one finding | Over-aggressive fingerprints can hide variants |
-| Sync Playwright inside LangGraph nodes | Simpler debugging than async for an MVP | Throughput capped vs a true parallel swarm (roadmap) |
-| BYOM via `LLM_*` env (OpenAI-compatible) | Ollama / Groq / OpenRouter / OpenAI all work | LLM suggestions are best-effort; heuristic probes still drive coverage |
+`run_audit()` invokes the **compiled** graph (`graph.invoke`). Playwright session is held outside state by `run_id` so LangGraph copies do not drop the browser.
 
 ---
 
-## Results (measured on this machine)
+## Results
 
-Command:
+### 1) RideLite regression suite (NOT discovery)
 
-```bash
-python -m phalanx.cli benchmark --mode heuristic
-```
+Command: `python -m phalanx.cli benchmark --mode heuristic`
 
-Target: `demo_app/` (RideLite) with **12 planted bugs** listed in `demo_app/planted_bugs.json`.
-The agent process never reads that file; only the scorer does.
+The default / `heuristic` / `regression` mode **seeds targeted URLs and payloads** that exercise every planted bug class in `demo_app/` (see `# B1`… comments in `phalanx/graph.py`). Scoring still uses `planted_bugs.json` only in the scorer — but the agent is steered at those classes. **Treat 12/12 as a regression harness, not a claim of novel discovery.**
 
-| Metric | Heuristic mode (CI / default) |
+| Metric | Heuristic / regression |
 |---|---|
 | Bugs found / planted | **12 / 12** |
-| Precision | **1.00** |
-| Recall | **1.00** |
-| F1 | **1.00** |
-| Steps / URLs visited | 16 / 16 |
-| False positives | 0 |
-| False negatives | 0 |
+| Precision / Recall / F1 | **1.00 / 1.00 / 1.00** |
+| Stability | **20 / 20** consecutive runs passed (see `benchmarks/published/stability_20.json`) |
 
-True positives matched by fingerprint: `404:/help`, `authz:admin-open`, `secrets:plaintext-passwords`, `xss:estimate`, `sqli:search`, `idor:rides-list`, `idor:ride-detail`, `idor:cancel`, `idor:api-ride`, `validation:negative-tip`, `open-redirect:profile`, `cookie:no-httponly`.
+### 2) Discovery on OWASP Juice Shop (unseen)
 
-**How to read this.** Perfect scores mean the heuristic probes cover every planted bug class in RideLite. That is the right goal for a regression harness; it is **not** a claim that Phalanx finds every bug in arbitrary production apps. Treat the number as "benchmark harness works and these 12 classes are covered," then grow the planted set / switch `--mode llm` for exploration.
+Target: Juice Shop v17.3.0 on `http://127.0.0.1:3000` (prebuilt linux tarball; not Docker).  
+Ground truth: 8 in-scope documented issues in [`benchmarks/juice_shop/ground_truth.json`](benchmarks/juice_shop/ground_truth.json).  
+Mode `generic` / `llm` uses **non-targeted** seeds (common paths, form/API fuzzing, login SQLi probe) — no RideLite planted-bug URLs.
 
-LLM mode (`--mode llm`, needs `LLM_BASE_URL` / `LLM_API_KEY` / `LLM_MODEL`): the planner asks an OpenAI-compatible model for the next path; heuristic probes still run. Numbers are **TBD** until re-run with a chosen model — set the env vars and:
+| Mode | Found / GT | Precision | Recall | F1 | Model |
+|---|---|---|---|---|---|
+| **generic** | **6 / 8** | **1.00** | **0.75** | **0.86** | n/a |
+| **llm** | **6 / 8** | **1.00** | **0.75** | **0.86** | qwen2.5:1.5b via llama.cpp (`LLM_BASE_URL=http://127.0.0.1:11434/v1`) |
+
+True positives (both modes): `misconfig:directory-listing`, `misconfig:backup-file`, `misconfig:metrics`, `sqli:error-page`, `sqli:login`, `authz:admin-config`.  
+Missed: `xss:dom-search` (Angular DOM XSS), `authz:admin-section` (SPA admin route) — expected with HTTP/API-centric probes.  
+LLM planner (1.5B) suggested a few extra paths but **did not improve** recall over generic on this GT set — reported as-is.
+
+Reproduce:
 
 ```bash
-LLM_BASE_URL=http://localhost:11434/v1 LLM_API_KEY=ollama LLM_MODEL=qwen2.5:7b \
-  python -m phalanx.cli benchmark --mode llm --out benchmarks/results-llm
+# terminal A — Juice Shop (example)
+cd /path/to/juice-shop && npm start -- --port 3000
+
+# terminal B
+python benchmarks/run_discovery.py --url http://127.0.0.1:3000 --mode generic
+LLM_BASE_URL=http://127.0.0.1:11434/v1 LLM_MODEL=qwen2.5:1.5b \
+  python benchmarks/run_discovery.py --url http://127.0.0.1:3000 --mode llm
 ```
 
 ---
 
 ## CI
 
-The OAuth token used to open this PR cannot push files under `.github/workflows/` (needs the `workflow` scope). A ready-to-use workflow lives at [`ci/github-actions.yml`](ci/github-actions.yml) — copy it to `.github/workflows/ci.yml` on `main` (or re-push with a PAT that has the `workflow` scope) to enable GitHub Actions.
+OAuth token lacks `workflow` scope → copy [`ci/github-actions.yml`](ci/github-actions.yml) to `.github/workflows/ci.yml`. Smoke test retries once on Playwright flakes.
+
+```bash
+pytest -q tests/
+```
+
+---
 
 ## Quickstart
 
@@ -101,39 +101,17 @@ python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 python -m playwright install chromium
 
-# 1) unit + demo-app tests (no browser swarm)
 pytest -q tests/test_detectors.py tests/test_demo_app.py
-
-# 2) full planted-bug benchmark (starts RideLite, runs agent, scores)
-python -m phalanx.cli benchmark --mode heuristic
-# → benchmarks/results/benchmark.md
-
-# 3) audit any running app
-python demo_app/app.py   # terminal A
-python -m phalanx.cli audit http://127.0.0.1:5055 --out reports/ridelite
-```
-
----
-
-## Repository layout
-
-```text
-phalanx/           # agent package (graph, browser, detectors, report, cli)
-demo_app/          # RideLite — planted-bug target (DO NOT deploy)
-benchmarks/        # scorer + measured results
-tests/             # pytest (detectors, demo app, benchmark smoke)
-docs/              # long-form concept architecture / roadmap / cost analysis
-prototype/         # original HTML prototype (kept for history)
+python -m phalanx.cli benchmark --mode heuristic   # RideLite regression
+python -m phalanx.cli audit http://127.0.0.1:3000 --mode generic
 ```
 
 ---
 
 ## Tech stack
 
-LangGraph · Playwright · Flask (demo target) · pytest · GitHub Actions · optional OpenAI-compatible LLM (Ollama / Groq / OpenRouter)
-
----
+LangGraph · Playwright · Flask (RideLite) · pytest · optional OpenAI-compatible LLM (llama.cpp / Ollama)
 
 ## License
 
-MIT. Concept docs and the original HTML prototype remain under the same license.
+MIT.
