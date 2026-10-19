@@ -1,0 +1,27 @@
+{
+  "mode": "heuristic",
+  "planted": 12,
+  "found": 12,
+  "true_positives": [
+    "404:/help",
+    "authz:admin-open",
+    "cookie:no-httponly",
+    "idor:api-ride",
+    "idor:cancel",
+    "idor:ride-detail",
+    "idor:rides-list",
+    "open-redirect:profile",
+    "secrets:plaintext-passwords",
+    "sqli:search",
+    "validation:negative-tip",
+    "xss:estimate"
+  ],
+  "false_negatives": [],
+  "false_positives": [],
+  "bugs_found_out_of_planted": "12/12",
+  "precision": 1.0,
+  "recall": 1.0,
+  "f1": 1.0,
+  "steps": 16,
+  "visited_count": 16
+}

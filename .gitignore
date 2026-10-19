@@ -71,3 +71,6 @@ models/
 *.bin
 *.safetensors
 .cache/
+
+benchmarks/results*/
+reports/
