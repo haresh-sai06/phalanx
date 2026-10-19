@@ -55,32 +55,53 @@ The default / `heuristic` / `regression` mode **seeds targeted URLs and payloads
 | Precision / Recall / F1 | **1.00 / 1.00 / 1.00** |
 | Stability | **20 / 20** consecutive runs passed (see `benchmarks/published/stability_20.json`) |
 
-### 2) Discovery on OWASP Juice Shop (unseen)
+### 2) Discovery on OWASP Juice Shop (unseen app)
 
-Target: Juice Shop v17.3.0 on `http://127.0.0.1:3000` (prebuilt linux tarball; not Docker).  
-Ground truth: 8 in-scope documented issues in [`benchmarks/juice_shop/ground_truth.json`](benchmarks/juice_shop/ground_truth.json).  
-Mode `generic` / `llm` uses **non-targeted** seeds (common paths, form/API fuzzing, login SQLi probe) — no RideLite planted-bug URLs.
+Target: Juice Shop **v17.3.0** on `http://127.0.0.1:3000` (prebuilt linux tarball; not Docker).
 
-| Mode | Found / GT | Precision | Recall | F1 | Model |
+**Scoring is against the official challenge list**, not a hand-written key:
+[`benchmarks/juice_shop/official_challenges.json`](benchmarks/juice_shop/official_challenges.json)
+is taken from Juice Shop's own `/api/Challenges` / `data/static/challenges.yml`, scoped to the
+**10 challenges a black-box, unauthenticated crawler can reach in one step** (no CAPTCHA / coupon
+math / authenticated multi-step puzzles). Each challenge lists the finding fingerprint(s) that count
+as a hit, so scoring is auditable.
+
+Generic mode uses **only** the app-agnostic wordlist
+[`benchmarks/wordlists/common_paths.txt`](benchmarks/wordlists/common_paths.txt)
+(sourced from SecLists `common.txt` / `raft-small-words` + OWASP WSTG sensitive-file checks) plus
+generic SQLi/XSS payload families applied to forms and query params the crawl discovers. **No
+target-specific paths or payloads.** (An earlier version of this benchmark hard-coded Juice Shop
+paths like `/ftp/*.bak` and `/rest/admin/application-configuration` and scored 6/8 against a
+hand-written key — that was overfitting and has been removed.)
+
+| Mode | Official scoped found | Precision | Recall | F1 | Model |
 |---|---|---|---|---|---|
-| **generic** | **6 / 8** | **1.00** | **0.75** | **0.86** | n/a |
-| **llm** | **6 / 8** | **1.00** | **0.75** | **0.86** | qwen2.5:1.5b via llama.cpp (`LLM_BASE_URL=http://127.0.0.1:11434/v1`) |
+| **generic** | **1 / 10** | **1.00** | **0.10** | **0.18** | n/a |
+| **llm** | **1 / 10** | **1.00** | **0.10** | **0.18** | qwen2.5:1.5b via llama.cpp |
 
-True positives (both modes): `misconfig:directory-listing`, `misconfig:backup-file`, `misconfig:metrics`, `sqli:error-page`, `sqli:login`, `authz:admin-config`.  
-Missed: `xss:dom-search` (Angular DOM XSS), `authz:admin-section` (SPA admin route) — expected with HTTP/API-centric probes.  
-LLM planner (1.5B) suggested a few extra paths but **did not improve** recall over generic on this GT set — reported as-is.
+Both modes (at equal 80-step budget) find only `exposedMetricsChallenge` — the unauthenticated
+`/metrics` endpoint, which happens to be a standard path in the generic wordlist. Everything else is
+missed: Juice Shop is an Angular SPA whose vulnerable surface lives behind JS routes (`/#/…`) and
+non-standard API paths (`/rest/user/login`, `/rest/products/search`, `/ftp`) that an app-agnostic
+crawler does not know and cannot discover from the static HTML. The 1.5B LLM planner did not help.
+
+**Honest takeaway:** against an unseen SPA, this crawler's black-box discovery is weak (recall 0.10).
+The strength of the project is the **regression harness** (section 1), not zero-knowledge discovery.
+See the resume guidance at the bottom of this section.
 
 Reproduce:
 
 ```bash
-# terminal A — Juice Shop (example)
+# terminal A — Juice Shop
 cd /path/to/juice-shop && npm start -- --port 3000
-
 # terminal B
-python benchmarks/run_discovery.py --url http://127.0.0.1:3000 --mode generic
-LLM_BASE_URL=http://127.0.0.1:11434/v1 LLM_MODEL=qwen2.5:1.5b \
-  python benchmarks/run_discovery.py --url http://127.0.0.1:3000 --mode llm
+python benchmarks/run_discovery.py --url http://127.0.0.1:3000 --mode generic --max-steps 80
+LLM_BASE_URL=http://127.0.0.1:11434/v1 LLM_MODEL=qwen2.5:1.5b   python benchmarks/run_discovery.py --url http://127.0.0.1:3000 --mode llm --max-steps 80
 ```
+
+**Resume guidance:** lead with the measured RideLite **regression** result and the engineering
+(compiled LangGraph graph, nav-stable Playwright, 20/20 reproducibility). Do **not** put a Juice Shop
+"discovery" number on a resume — recall is only 0.10 and would not survive scrutiny.
 
 ---
 
