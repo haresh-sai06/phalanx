@@ -1,27 +1,253 @@
 {
-  "mode": "heuristic",
-  "planted": 12,
-  "found": 12,
-  "true_positives": [
-    "404:/help",
-    "authz:admin-open",
-    "cookie:no-httponly",
-    "idor:api-ride",
-    "idor:cancel",
-    "idor:ride-detail",
-    "idor:rides-list",
-    "open-redirect:profile",
-    "secrets:plaintext-passwords",
-    "sqli:search",
-    "validation:negative-tip",
-    "xss:estimate"
-  ],
-  "false_negatives": [],
-  "false_positives": [],
-  "bugs_found_out_of_planted": "12/12",
-  "precision": 1.0,
-  "recall": 1.0,
-  "f1": 1.0,
-  "steps": 16,
-  "visited_count": 16
+  "summary": {
+    "mode": "heuristic",
+    "planted": 12,
+    "found": 12,
+    "true_positives": [
+      "404:/help",
+      "authz:admin-open",
+      "cookie:no-httponly",
+      "idor:api-ride",
+      "idor:cancel",
+      "idor:ride-detail",
+      "idor:rides-list",
+      "open-redirect:profile",
+      "secrets:plaintext-passwords",
+      "sqli:search",
+      "validation:negative-tip",
+      "xss:estimate"
+    ],
+    "false_negatives": [],
+    "false_positives": [],
+    "bugs_found_out_of_planted": "12/12",
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "steps": 16,
+    "visited_count": 16
+  },
+  "audit": {
+    "base_url": "http://127.0.0.1:53271",
+    "mode": "heuristic",
+    "steps": 16,
+    "visited": [
+      "http://127.0.0.1:53271/",
+      "http://127.0.0.1:53271/login",
+      "http://127.0.0.1:53271/estimate",
+      "http://127.0.0.1:53271/search",
+      "http://127.0.0.1:53271/help",
+      "http://127.0.0.1:53271/admin",
+      "http://127.0.0.1:53271/estimate?q=%3Cscript%3Ealert%28%22phalanx%22%29%3C/script%3E",
+      "http://127.0.0.1:53271/search?q=x%27%20OR%201%3D1--",
+      "http://127.0.0.1:53271/api/rides/1",
+      "http://127.0.0.1:53271/rides",
+      "http://127.0.0.1:53271/rides/1",
+      "http://127.0.0.1:53271/rides/2",
+      "http://127.0.0.1:53271/api/rides/2",
+      "http://127.0.0.1:53271/book",
+      "http://127.0.0.1:53271/logout",
+      "http://127.0.0.1:53271/profile"
+    ],
+    "notes": [
+      "seed:regression",
+      "logged:alice",
+      "logged:bob",
+      "logged:bob-idor"
+    ],
+    "phase": "done",
+    "findings": [
+      {
+        "title": "Broken link returns 404: /help",
+        "category": "functional",
+        "severity": "medium",
+        "url": "http://127.0.0.1:53271/help",
+        "evidence": "HTTP 404 at http://127.0.0.1:53271/help",
+        "fingerprint": "404:/help",
+        "persona": "anon",
+        "repro_steps": [
+          "Open http://127.0.0.1:53271/help"
+        ],
+        "cvss_hint": null
+      },
+      {
+        "title": "Admin panel reachable without proper authorization",
+        "category": "security",
+        "severity": "critical",
+        "url": "http://127.0.0.1:53271/admin",
+        "evidence": "HTTP 200; page title='Admin panel \u00b7 RideLite'; body contains user table",
+        "fingerprint": "authz:admin-open",
+        "persona": "anon",
+        "repro_steps": [
+          "Log out (or use a fresh session)",
+          "Open /admin"
+        ],
+        "cvss_hint": 9.8
+      },
+      {
+        "title": "Admin panel renders plaintext passwords",
+        "category": "security",
+        "severity": "critical",
+        "url": "http://127.0.0.1:53271/admin",
+        "evidence": "Password column contains the seed plaintext passwords",
+        "fingerprint": "secrets:plaintext-passwords",
+        "persona": "anon",
+        "repro_steps": [
+          "Open /admin",
+          "Inspect Password column"
+        ],
+        "cvss_hint": 9.1
+      },
+      {
+        "title": "Reflected XSS on /estimate",
+        "category": "security",
+        "severity": "high",
+        "url": "http://127.0.0.1:53271/estimate?q=%3Cscript%3Ealert%28%22phalanx%22%29%3C/script%3E",
+        "evidence": "Payload echoed unescaped in HTML: '<script>alert(\"phalanx\")</script>'",
+        "fingerprint": "xss:estimate",
+        "persona": "anon",
+        "repro_steps": [
+          "Open http://127.0.0.1:53271/estimate?q=%3Cscript%3Ealert%28%22phalanx%22%29%3C/script%3E"
+        ],
+        "cvss_hint": 6.1
+      },
+      {
+        "title": "SQL error page exposed on /search",
+        "category": "security",
+        "severity": "high",
+        "url": "http://127.0.0.1:53271/search?q=x%27%20OR%201%3D1--",
+        "evidence": "Home Fare estimate Search Help Log in\nDatabase error\nsqlite3.OperationalError: near \"x' OR 1=1--\": syntax error\nQuery: SELECT * FROM places WHERE name LIKE '%x' OR 1=1--%'",
+        "fingerprint": "sqli:search",
+        "persona": "anon",
+        "repro_steps": [
+          "Open http://127.0.0.1:53271/search?q=x%27%20OR%201%3D1--"
+        ],
+        "cvss_hint": 8.6
+      },
+      {
+        "title": "debug_token cookie missing HttpOnly flag",
+        "category": "security",
+        "severity": "medium",
+        "url": "http://127.0.0.1:53271/",
+        "evidence": "cookie={'name': 'debug_token', 'value': 'alice-token', 'domain': '127.0.0.1', 'path': '/', 'expires': -1, 'httpOnly': False, 'secure': False, 'sameSite': 'Lax'}",
+        "fingerprint": "cookie:no-httponly",
+        "persona": "alice",
+        "repro_steps": [
+          "Log in",
+          "Inspect document.cookie / DevTools Application tab"
+        ],
+        "cvss_hint": null
+      },
+      {
+        "title": "Negative fare accepted after tip",
+        "category": "functional",
+        "severity": "medium",
+        "url": "http://127.0.0.1:53271/rides/1",
+        "evidence": "Fare rendered as $-87.50",
+        "fingerprint": "validation:negative-tip",
+        "persona": "alice",
+        "repro_steps": [
+          "Open a ride detail page",
+          "Submit tip amount = -100"
+        ],
+        "cvss_hint": null
+      },
+      {
+        "title": "Open redirect via next= parameter",
+        "category": "security",
+        "severity": "medium",
+        "url": "http://127.0.0.1:53271/profile?saved=1&next=https://evil.example/phalanx",
+        "evidence": "Browser navigated to http://127.0.0.1:53271/profile?saved=1&next=https://evil.example/phalanx",
+        "fingerprint": "open-redirect:profile",
+        "persona": "alice",
+        "repro_steps": [
+          "Log in",
+          "Open /profile?saved=1&next=https://evil.example"
+        ],
+        "cvss_hint": null
+      },
+      {
+        "title": "IDOR: /rides lists other users' rides",
+        "category": "security",
+        "severity": "high",
+        "url": "http://127.0.0.1:53271/rides",
+        "evidence": "While logged in as bob, table shows owners ['alice']",
+        "fingerprint": "idor:rides-list",
+        "persona": "bob",
+        "repro_steps": [
+          "Log in as bob",
+          "Open /rides",
+          "Observe other users' rides"
+        ],
+        "cvss_hint": 7.5
+      },
+      {
+        "title": "IDOR: /rides/<id> has no ownership check",
+        "category": "security",
+        "severity": "high",
+        "url": "http://127.0.0.1:53271/rides/1",
+        "evidence": "Logged in as bob, viewed ride owned by alice",
+        "fingerprint": "idor:ride-detail",
+        "persona": "bob",
+        "repro_steps": [
+          "Log in as bob",
+          "Open /rides/1"
+        ],
+        "cvss_hint": 7.5
+      },
+      {
+        "title": "Any user can cancel another user's ride",
+        "category": "security",
+        "severity": "high",
+        "url": "http://127.0.0.1:53271/rides/1",
+        "evidence": "bob cancelled ride #1; page now shows status=cancelled",
+        "fingerprint": "idor:cancel",
+        "persona": "bob",
+        "repro_steps": [
+          "Log in as bob",
+          "POST /rides/1/cancel"
+        ],
+        "cvss_hint": 7.1
+      },
+      {
+        "title": "Unauthenticated JSON IDOR on /api/rides/<id>",
+        "category": "security",
+        "severity": "high",
+        "url": "http://127.0.0.1:53271/api/rides/2",
+        "evidence": "{\"driver\":null,\"dropoff\":\"bob-Drop\",\"fare\":-87.5,\"id\":2,\"owner\":\"bob\",\"pickup\":\"bob-Pickup\",\"status\":\"requested\"}\n",
+        "fingerprint": "idor:api-ride",
+        "persona": "bob",
+        "repro_steps": [
+          "GET http://127.0.0.1:53271/api/rides/2 with no/minimal auth"
+        ],
+        "cvss_hint": 7.5
+      }
+    ],
+    "summary": {
+      "total": 12,
+      "by_severity": {
+        "medium": 4,
+        "critical": 2,
+        "high": 6
+      },
+      "by_category": {
+        "functional": 2,
+        "security": 10
+      },
+      "fingerprints": [
+        "404:/help",
+        "authz:admin-open",
+        "cookie:no-httponly",
+        "idor:api-ride",
+        "idor:cancel",
+        "idor:ride-detail",
+        "idor:rides-list",
+        "open-redirect:profile",
+        "secrets:plaintext-passwords",
+        "sqli:search",
+        "validation:negative-tip",
+        "xss:estimate"
+      ],
+      "graph_driven": true
+    }
+  }
 }

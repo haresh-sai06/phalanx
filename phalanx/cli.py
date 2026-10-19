@@ -31,14 +31,14 @@ def main(argv: list[str] | None = None) -> int:
 
     a = sub.add_parser("audit", help="audit a running app")
     a.add_argument("url")
-    a.add_argument("--mode", choices=["heuristic", "llm"], default="heuristic")
+    a.add_argument("--mode", choices=["heuristic", "regression", "generic", "llm"], default="heuristic")
     a.add_argument("--max-steps", type=int, default=40)
     a.add_argument("--out", default="reports/latest")
     a.add_argument("--headed", action="store_true")
     a.set_defaults(func=cmd_audit)
 
     b = sub.add_parser("benchmark", help="run against the planted-bug demo app")
-    b.add_argument("--mode", choices=["heuristic", "llm"], default="heuristic")
+    b.add_argument("--mode", choices=["heuristic", "regression", "generic", "llm"], default="heuristic")
     b.add_argument("--max-steps", type=int, default=40)
     b.add_argument("--out", default="benchmarks/results")
     b.set_defaults(func=cmd_benchmark)
